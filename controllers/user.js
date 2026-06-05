@@ -26,7 +26,8 @@ async function handleLogin(req, res){
             return res.cookie('token', token).redirect("/");
         }
         else{
-            return res.cookie('token', token).redirect("/profile");
+            return res.cookie('token', token).json({success: true, role: "USER"});
+;
         }
 
     }

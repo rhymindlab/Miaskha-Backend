@@ -47,7 +47,6 @@ async function handleMergeCart(req, res) {
         salePrice: item.salePrice,
         gst: item.gst,
     }));
-    console.log(docs)
 
     await cart.insertMany(docs);
 

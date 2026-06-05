@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<%- include("partials/head", {
+    title: "Add Product"
+}) %>
+
+<body>
+
+<%- include("partials/navbar") %>
+
+<div class="container">
+
+    <h1>Add Product</h1>
+
+    <form class="d-flex flex-column w-50" action="/product/addproduct" method="POST">
+        <div class="row mb-3 align-items-center">
+            <div class="row">
+                <label class="col-md-3 col-form-label">Product Title</label>
+                <div class="col-md-9">
+                    <input class="form-control" type="text" name="title" placeholder="Product Title" required />
+                </div>
+            </div>
+            <div class="row">
+                <label class="col-md-3 col-form-label">Sku</label>
+                <div class="col-md-9">
+                    <input class="form-control" type="text" name="sku" placeholder="SKU" required />
+                </div>
+            </div>
+            <div class="row">
+                <label class="col-md-3 col-form-label">MRP</label>
+                <div class="col-md-9">
+                    <input type="number" class="form-control" name="mrp" placeholder="MRP" required />
+                </div>
+            </div>
+            <div class="row">
+                <label class="col-md-3 col-form-label">Sale Price</label>
+                <div class="col-md-9">
+                    <input type="number" class="form-control" name="salePrice" placeholder="Sale Price" required />
+                </div>
+            </div>
+            <div class="row">
+                <label class="col-md-3 col-form-label">Stock</label>
+                <div class="col-md-9">
+                    <input type="number" class="form-control" name="stock" placeholder="Stock" />
+                </div>
+            </div>
+            <div class="row">
+
+        <!-- JEWELLERY -->
+                <label class="col-md-3 col-form-label">Product Weight</label>
+                <div class="col-md-9">
+                    <input class="form-control" step="0.01" type="number" name="productWeight" placeholder="Product Weight" required />
+                </div>
+            </div>
+            <div class="row">
+                <label class="col-md-3 col-form-label">Metal Weight</label>
+                <div class="col-md-9">
+                    <input class="form-control" step="0.01" type="number" name="metalWeight" placeholder="Metal Weight" required />
+                </div>
+            </div>
+
+            <div class="row">
+
+                <div class="col-md-6">
+                    <select name="metalType">
+
+                        <option value="">Select Metal</option>
+
+                        <option value="Gold">Gold</option>
+
+                        <option value="Gold">Rose Gold</option>
+                        <option value="Gold">Yellow Gold</option>
+                        <option value="Gold">White Gold</option>
+
+                        <option value="Silver">Silver</option>
+
+                        <option value="Platinum">Platinum</option>
+
+                    </select>
+                </div>
+            
+
+                <div class="col-md-6">
+                    <select name="purity">
+
+                        <option value="">Select Purity</option>
+
+                        <option value="14K">14K</option>
+
+                        <option value="18K">18K</option>
+
+                        <option value="22K">22K</option>
+
+                        <option value="24K">24K</option>
+
+                        <option value="999">999</option>
+
+                        <option value="925">925</option>
+
+
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <label class="col-md-3 col-form-label">Making Charges</label>
+                <div class="col-md-9">
+                    <input type="number" class="form-control" name="makingCharges" placeholder="Making Charges" />
+                </div>
+            </div>
+
+
+        <h3>Stone Details</h3>
+        <p><small>(Use comma separation for arrays if multiple stones, though standard form submission for arrays typically uses multiple inputs or custom JS. Assuming text inputs that will be parsed as arrays in the controller)</small></p>
+
+        <div class="row">
+            <label class="col-md-3 col-form-label">Stone Type</label>
+            <div class="col-md-9">
+                <input class="form-control" type="text" name="stoneType" placeholder="Stone Type" />
+            </div>
+        </div>
+
+        <div class="row">
+            <label class="col-md-3 col-form-label">Stone Shape</label>
+            <div class="col-md-9">
+                <input class="form-control" type="text" name="stoneShape" placeholder="Stone Shapes (comma separated)" />
+            </div>
+        </div>
+
+        <div class="row">
+            <label class="col-md-3 col-form-label">Stone Price</label>
+            <div class="col-md-9">
+                <input class="form-control" type="text" name="stonePrice" placeholder="Stone Prices (comma separated)" />
+            </div>
+        </div>
+
+        <div class="row">
+            <label class="col-md-3 col-form-label">Stone Weight</label>
+            <div class="col-md-9">
+                <input class="form-control" type="text" name="stoneWeight" placeholder="Stone Weights (comma separated)" />
+            </div>
+        </div>
+
+        <div class="row">
+            <label class="col-md-3 col-form-label">Stone Color</label>
+            <div class="col-md-9">
+                <input class="form-control" type="text" name="stoneColor" placeholder="Stone Colors (comma separated)" />
+            </div>
+        </div>
+
+        <div class="row">
+            <label class="col-md-3 col-form-label">Stone Clarity</label>
+            <div class="col-md-9">
+                <input class="form-control" type="text" name="stoneClarity" placeholder="Stone Clarities (comma separated)" />
+            </div>
+        </div>
+
+        <div class="row">
+            <label class="col-md-3 col-form-label">Stone Size Range</label>
+            <div class="col-md-9">
+                <input class="form-control" type="text" name="stoneSizeRange" placeholder="Stone Size Ranges (comma separated)" />
+            </div>
+        </div>
+
+        <div class="row">
+            <label class="col-md-3 col-form-label">Short Description</label>
+            <div class="col-md-9">
+                <textarea class="form-control" name="shortDescription" placeholder="Short Description"></textarea>
+            </div>
+        </div>
+
+        <div class="row">
+            <label class="col-md-3 col-form-label">Full Description</label>
+            <div class="col-md-9">
+                <textarea class="form-control" name="description" placeholder="Full Description"></textarea>
+            </div>
+        </div>
+
+        <!-- IMAGES -->
+
+        <h4>Images</h4>
+
+                <div class="row mb-3">
+                    <label class="col-md-3 col-form-label">Image URL</label>
+                    <div class="col-md-9">
+                        <div id="image-container">
+                            <div class="image-box">
+                                <input class="form-control" type="text" name="images" placeholder="Image URL" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="offset-md-3 col-md-9">
+                        <button class="btn btn-outline-primary" type="button" onclick="addImageField()">
+                            Add Image
+                        </button>
+                    </div>
+                </div>
+
+                <h4>Videos</h4>
+
+                <div class="row mb-3">
+                    <label class="col-md-3 col-form-label">Video URL</label>
+                    <div class="col-md-9">
+                        <div id="video-container">
+                            <div class="video-box">
+                                <input class="form-control" type="text" name="videos" placeholder="Video URL" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="offset-md-3 col-md-9">
+                        <button class="btn btn-outline-primary" type="button" onclick="addVideoField()">
+                            Add Video
+                        </button>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <label class="col-md-3 col-form-label">Category</label>
+                    <div class="col-md-9">
+                        <select class="form-select" name="category" required>
+                            <option value="">Select Category</option>
+
+                            <% categories.forEach(category => { %>
+                                <option value="<%= category._id %>">
+                                    <%= category.name %>
+                                </option>
+                            <% }) %>
+
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <label class="col-md-3 col-form-label">Collections</label>
+                    <div class="col-md-9">
+                        <select class="form-select" name="collections" multiple>
+                            <% collections.forEach(collection => { %>
+                                <option value="<%= collection.name %>">
+                                    <%= collection.name %>
+                                </option>
+                            <% }) %>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <label class="col-md-3 col-form-label">Featured Product</label>
+                    <div class="col-md-9 d-flex align-items-center">
+                        <input class="form-check-input" type="checkbox" name="isFeatured" />
+                    </div>
+                </div>
+
+                <h4>Customization Fields</h4>
+
+                <div class="row mb-3">
+                    <label class="col-md-3 col-form-label">Customizations</label>
+                    <div class="col-md-9">
+                        <div id="customization-container"></div>
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="offset-md-3 col-md-9">
+                        <button class="btn btn-outline-success" type="button" onclick="addCustomizationField()">
+                            Add Customization Field
+                        </button>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="offset-md-3 col-md-9">
+                        <button class="btn btn-success btn-lg w-100" type="submit">
+                            Add Product
+                        </button>
+                    </div>
+                </div>
+    </form>
+
+</div>
+
+<script src="/js/add-product.js"></script>
+
+</body>
+
+</html>

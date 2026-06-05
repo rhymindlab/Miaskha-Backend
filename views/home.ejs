@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<%- include("partials/head", {
+    title: "Dashboard"
+}) %>
+
+<body>
+
+<%- include("partials/navbar") %>
+
+<div class="dashboard-container">
+
+    <!-- PRODUCTS -->
+
+    <section class="products-section">
+
+        <div class="section-heading">
+
+            All Products
+
+        </div>
+
+        <div class="products-container">
+
+            <% products.forEach(product => { %>
+
+                <a
+                    class="product-card"
+                    href="/product/<%= product._id %>"
+                >
+
+                    <span>
+                        <%= product.title %>
+                    </span>
+
+                    <span>
+                        ₹ <%= product.salePrice %>
+                    </span>
+
+                    <span>
+                        Stock:
+                        <%= product.stock %>
+                    </span>
+
+                    <button
+
+                        type="button"
+
+                        onclick="
+                            deleteProduct(
+                                '<%= product._id %>'
+                            )
+                        "
+
+                    >
+                        Delete
+                    </button>
+
+                </a>
+
+            <% }) %>
+
+        </div>
+
+    </section>
+
+    <!-- METAL RATES -->
+
+    <section class="metal-section">
+
+        <div class="section-heading">
+
+            Metal Rates
+
+        </div>
+
+        <div class="metal-container">
+
+            <% allMetalsRates.forEach(rate => { %>
+
+                <div class="metal-card">
+
+                    <h3>
+
+                        <%= rate.metalType %>
+
+                    </h3>
+
+                    <p>
+
+                        Purity:
+                        <%= rate.purity %>
+
+                    </p>
+
+                    <p>
+
+                        ₹
+                        <%= rate.amount %>/g
+
+                    </p>
+
+                </div>
+
+            <% }) %>
+
+        </div>
+
+    </section>
+
+</div>
+
+<script src="/js/dashboard.js"></script>
+
+</body>
+
+</html>

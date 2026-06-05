@@ -31,6 +31,7 @@ async function handleLogin(req, res){
 
     }
     catch (error) {
+        console.log(error)
         return res.render("login", {
             error: "Incorrect Email or Password"
         })

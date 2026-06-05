@@ -31,7 +31,9 @@ app.use(express.static("public"));
 
     
 app.use(cors({
-    origin: "http://localhost:5173",
+    origin: ["http://localhost:5173",
+        "https://lumina-diamond-website-backend.onrender.com/"
+    ],
     credentials: true
 }));
 app.use(express.urlencoded({extended: true}))

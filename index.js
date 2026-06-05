@@ -31,8 +31,9 @@ app.use(express.static("public"));
 
     
 app.use(cors({
-    origin: ["http://localhost:5173",
-        "https://lumina-diamond-website-backend.onrender.com/"
+    origin: [
+        "http://localhost:5173",
+        "https://lumina-diamonds-frontend.vercel.app"
     ],
     credentials: true
 }));

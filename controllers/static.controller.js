@@ -12,7 +12,14 @@ async function handleLogin(req, res) {
 }
 
 async function handlelogout(req, res){
-    res.clearCookie("token").redirect('/login');
+    res.clearCookie("token",{
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+    }).status(200).json({
+        success: true,
+        message: "Logout successful",
+    });
 }
 
 async function handleAddProduct(req, res) {

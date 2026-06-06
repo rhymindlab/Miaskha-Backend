@@ -23,11 +23,17 @@ async function handleLogin(req, res){
         console.log(req.body);
         const {token, role} = await Users.matchPasswordAndGenerateToken(email, password);
         if(role === 'ADMIN'){
-            return res.cookie('token', token).redirect("/");
+            return res.cookie('token', token,).redirect("/");
         }
         else{
-            return res.cookie('token', token).json({success: true, role: "USER"});
-;
+            return res.cookie('token', token,{
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: process.env.NODE_ENV === "production"
+                    ? "none"
+                    : "lax",
+            }).json({success: true, role: "USER"});
+            ;
         }
 
     }

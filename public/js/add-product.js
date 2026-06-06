@@ -105,7 +105,7 @@ function addCustomizationField(){
         <input
             type="text"
             name="customizationFields[${fieldIndex}][name]"
-            placeholder="Field Name"
+            placeholder="Field Name *"
         />
 
         <input

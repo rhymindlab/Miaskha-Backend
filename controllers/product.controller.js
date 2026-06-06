@@ -57,6 +57,8 @@ async function handleAddProduct(req, res) {
 
                 });
 
+                console.log(formattedCustomizationFields);
+
         }
 
         const filteredImages = (Array.isArray(images) ? images : [images]).filter(img => img && img.trim() !== "");

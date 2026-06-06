@@ -9,55 +9,60 @@
 
 <%- include("partials/navbar") %>
 
-<div class="dashboard-container">
+<div class="p-5">
 
     <!-- PRODUCTS -->
 
-    <section class="products-section">
+    <section class="mb-5">
 
-        <div class="section-heading">
+        <h2 class="mb-4">All Products</h2>
 
-            All Products
-
-        </div>
-
-        <div class="products-container">
+        <div class="row g-4">
 
             <% products.forEach(product => { %>
 
-                <a
-                    class="product-card"
-                    href="/product/<%= product._id %>"
-                >
+                <div class="col-6 col-md-4 col-lg-3 col-xl-2">
 
-                    <span>
-                        <%= product.title %>
-                    </span>
+                    <div class="card h-100 shadow-sm">
 
-                    <span>
-                        ₹ <%= product.salePrice %>
-                    </span>
+                        <div class="card-body d-flex flex-column">
 
-                    <span>
-                        Stock:
-                        <%= product.stock %>
-                    </span>
+                            <h5 class="card-title fs-6">
+                                <%= product.title %>
+                            </h5>
 
-                    <button
+                            <p class="card-text mb-1">
+                                ₹ <%= product.salePrice %>
+                            </p>
 
-                        type="button"
+                            <p class="card-text">
+                                Stock: <%= product.stock %>
+                            </p>
 
-                        onclick="
-                            deleteProduct(
-                                '<%= product._id %>'
-                            )
-                        "
+                            <div class="mt-auto d-flex gap-2">
 
-                    >
-                        Delete
-                    </button>
+                                <a
+                                    href="/product/<%= product._id %>"
+                                    class="btn btn-primary btn-sm flex-fill"
+                                >
+                                    View
+                                </a>
 
-                </a>
+                                <button
+                                    type="button"
+                                    class="btn btn-danger btn-sm flex-fill"
+                                    onclick="deleteProduct('<%= product._id %>')"
+                                >
+                                    Delete
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
 
             <% }) %>
 
@@ -67,39 +72,35 @@
 
     <!-- METAL RATES -->
 
-    <section class="metal-section">
+    <section>
 
-        <div class="section-heading">
+        <h2 class="mb-4">Metal Rates</h2>
 
-            Metal Rates
-
-        </div>
-
-        <div class="metal-container">
+        <div class="row g-4">
 
             <% allMetalsRates.forEach(rate => { %>
 
-                <div class="metal-card">
+                <div class="col-12 col-md-6 col-lg-4 col-xl-3">
 
-                    <h3>
+                    <div class="card h-100 shadow-sm">
 
-                        <%= rate.metalType %>
+                        <div class="card-body">
 
-                    </h3>
+                            <h5 class="card-title">
+                                <%= rate.metalType %>
+                            </h5>
 
-                    <p>
+                            <p class="card-text">
+                                Purity: <%= rate.purity %>
+                            </p>
 
-                        Purity:
-                        <%= rate.purity %>
+                            <p class="card-text fw-bold">
+                                ₹ <%= rate.amount %>/g
+                            </p>
 
-                    </p>
+                        </div>
 
-                    <p>
-
-                        ₹
-                        <%= rate.amount %>/g
-
-                    </p>
+                    </div>
 
                 </div>
 
@@ -110,7 +111,6 @@
     </section>
 
 </div>
-
 <script src="/js/dashboard.js"></script>
 
 </body>

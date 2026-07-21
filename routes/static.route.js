@@ -16,6 +16,7 @@ router.get('/addcollection', restrictToLoggedinUserOnly, restrictToAdminOnly, ha
 
 
 router.get('/profile', restrictToLoggedinUserOnly, async (req, res)=>{
+    console.log("PROFILE ROUTE HIT");
     const _id = req.user._id;
     return res.json(req.user);
 });

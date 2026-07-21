@@ -33,7 +33,7 @@ app.use(express.static("public"));
 app.use(cors({
     origin: [
         "http://localhost:5173",
-        "https://miaskha-frontend.vercel.app"
+        "https://www.miashka.com/"
     ],
     credentials: true
 }));

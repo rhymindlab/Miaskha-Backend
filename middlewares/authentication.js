@@ -1,3 +1,4 @@
+const Users = require("../models/users");
 const {
     validateToken
 } = require("../services/authentication");
@@ -9,7 +10,7 @@ const {
 
 function checkForAuthenticationCookie(cookieName) {
 
-    return (req, res, next) => {
+    return async (req, res, next) => {
 
         const tokenCookieValue =
             req.cookies[cookieName];
@@ -22,10 +23,11 @@ function checkForAuthenticationCookie(cookieName) {
 
         try {
 
-            const userPayload =
-                validateToken(tokenCookieValue);
+            const userPayload = validateToken(tokenCookieValue);
 
-            req.user = userPayload;
+            const user = await Users.findById(userPayload._id);
+
+            req.user = user;
 
         } catch (error) {
           
@@ -50,6 +52,7 @@ function restrictToLoggedinUserOnly(
     res,
     next
 ) {
+    console.log(req.user);
 
     if (!req.user) {
 

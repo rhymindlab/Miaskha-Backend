@@ -6,7 +6,7 @@ const router = Router();
 
 router.post("/signup", handleSignUp);
 router.post("/login", handleLogin);
-router.put("/update", handleDetailChange, restrictToLoggedinUserOnly, restrictToAdminOnly,);
+router.put("/update", restrictToLoggedinUserOnly, handleDetailChange);
 
 
 module.exports = router;

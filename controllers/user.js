@@ -63,7 +63,7 @@ async function handleDetailChange(req, res) {
         console.log("BODY:", req.body);
 
         const updatedUser = await Users.findOneAndUpdate(
-            { email },
+            req.user._id,
             {
                 firstName,
                 lastName,

@@ -1,10 +1,12 @@
 const {Router} = require("express");
-const { handleSignUp, handleLogin } = require('../controllers/user')
+const { handleSignUp, handleLogin, handleDetailChange } = require('../controllers/user');
+const { restrictToLoggedinUserOnly, restrictToAdminOnly } = require("../middlewares/authentication");
 const router = Router();
 
 
 router.post("/signup", handleSignUp);
 router.post("/login", handleLogin);
+router.put("/update", handleDetailChange, restrictToLoggedinUserOnly, restrictToAdminOnly,);
 
 
 module.exports = router;

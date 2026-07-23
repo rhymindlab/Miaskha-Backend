@@ -20,7 +20,6 @@ async function handleSignUp(req, res){
 async function handleLogin(req, res){
     try{
         const {email, password} = req.body;
-        console.log(req.body);
         const {token, role} = await Users.matchPasswordAndGenerateToken(email, password);
         if(role === 'ADMIN'){
             return res.cookie('token', token,).redirect("/");
@@ -47,9 +46,67 @@ async function handleLogin(req, res){
 };
 
 
+async function handleDetailChange(req, res) {
+    try {
+        const {
+            email,
+            firstName,
+            lastName,
+            mobile,
+            address,
+            company,
+            country,
+            city,
+            state,
+            pinCode,
+        } = req.body;
+        console.log("BODY:", req.body);
 
+        const updatedUser = await Users.findOneAndUpdate(
+            { email },
+            {
+                firstName,
+                lastName,
+                mobile,
+                address,
+                company,
+                country,
+                city,
+                state,
+                pinCode,
+            },
+            {
+                returnDocument: "after",
+                runValidators: true,
+            }
+        );
+        console.log("UPDATED USER:", updatedUser);
+
+        if (!updatedUser) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found",
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Profile updated successfully",
+            user: updatedUser,
+        });
+
+    } catch (err) {
+        console.error(err);
+
+        return res.status(500).json({
+            success: false,
+            message: "Server Error",
+        });
+    }
+}
 
 module.exports = {
     handleSignUp,
     handleLogin,
+    handleDetailChange,
 }

@@ -13,6 +13,7 @@ const categoryRoute = require('./routes/category.route')
 const collectionRoute = require('./routes/collection.route')
 const metalRoute = require('./routes/metalrates.route')
 const cartRoute = require('./routes/cart.route')
+const paymentRoutes = require("./routes/payment.route");
 
 const path = require('path');
 const { checkForAuthenticationCookie } = require('./middlewares/authentication');
@@ -37,6 +38,10 @@ app.use(cors({
     ],
     credentials: true
 }));
+
+app.use("/payment/webhook",
+    express.raw({ type: "application/json" })
+);
 app.use(express.urlencoded({extended: true}))
 app.use(express.json());
 app.use(cookieParser());
@@ -50,6 +55,7 @@ app.use('/metal', metalRoute);
 app.use('/cart', cartRoute)
 app.use('/user', userRoute);
 app.use('/', staticRoute);
+app.use("/payment", paymentRoutes);
 
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {

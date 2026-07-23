@@ -39,9 +39,9 @@ app.use(cors({
     credentials: true
 }));
 
-app.use("/payment/webhook",
-    express.raw({ type: "application/json" })
-);
+// app.use("/payment/webhook",
+//     express.raw({ type: "application/json" })
+// );
 app.use(express.urlencoded({extended: true}))
 app.use(express.json());
 app.use(cookieParser());
@@ -55,7 +55,7 @@ app.use('/metal', metalRoute);
 app.use('/cart', cartRoute)
 app.use('/user', userRoute);
 app.use('/', staticRoute);
-app.use("/payment", paymentRoutes);
+// app.use("/payment", paymentRoutes);
 
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {

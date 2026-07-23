@@ -41,7 +41,12 @@ usersSchema.pre("save", function () {
 });
 
 usersSchema.static("matchPasswordAndGenerateToken", async function(email, password){
+    console.log("Email received:", email);
+
     const user = await this.findOne({ email });
+
+    console.log("User found:", user);
+
     if(!user) throw new Error('User Not Found');
 
     const salt = user.salt;
@@ -49,6 +54,8 @@ usersSchema.static("matchPasswordAndGenerateToken", async function(email, passwo
     const role = user.role;
 
     const userProvidedHash = createHmac("sha256", salt).update(password).digest("hex");
+    console.log("DB password:", user.password);
+    console.log("Generated:", userProvidedHash);
     
     if(hashedPassword !== userProvidedHash) throw new Error('Incorrect Password');
     

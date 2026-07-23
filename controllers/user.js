@@ -4,6 +4,7 @@ const Users = require('../models/users');
 async function handleSignUp(req, res){
     try {
         const {userName, password, email, role} = req.body;
+        console.log("Signup password:", password);
         await Users.create({
             userName,
             password,
@@ -20,6 +21,7 @@ async function handleSignUp(req, res){
 async function handleLogin(req, res){
     try{
         const {email, password} = req.body;
+        console.log("Login password:", password);
         const {token, role} = await Users.matchPasswordAndGenerateToken(email, password);
         if(role === 'ADMIN'){
             return res.cookie('token', token,).redirect("/");
@@ -62,7 +64,7 @@ async function handleDetailChange(req, res) {
         } = req.body;
         console.log("BODY:", req.body);
 
-        const updatedUser = await Users.findOneAndUpdate(
+        const updatedUser = await Users.findByIdAndUpdate(
             req.user._id,
             {
                 firstName,
@@ -76,7 +78,7 @@ async function handleDetailChange(req, res) {
                 pinCode,
             },
             {
-                returnDocument: "after",
+                new: true,
                 runValidators: true,
             }
         );

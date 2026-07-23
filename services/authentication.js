@@ -7,20 +7,9 @@ function createTokenForUser(user){
     }
 
     const payload = {
-        _id: user._id,
-        firstName: user.firstName,
-        lastName:user.lastName,
-        email: user.email,
-        role: user.role,
-        userName:user.userName,
-        address:user.address,
-        mobile: user.mobile,
-        company: user.company,
-        country: user.country,
-        city: user.city,
-        state: user.state,
-        pinCode: user.pinCode
-    };
+    _id: user._id,
+    role: user.role,
+};
 
     const token = JWT.sign(payload, secret);
 

@@ -52,8 +52,7 @@ function restrictToLoggedinUserOnly(
     res,
     next
 ) {
-    console.log("Cookies:", req.cookies);
-    console.log("User:", req.user);
+    
 
     if (!req.user) {
 

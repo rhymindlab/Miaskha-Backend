@@ -14,6 +14,7 @@ const collectionRoute = require('./routes/collection.route')
 const metalRoute = require('./routes/metalrates.route')
 const cartRoute = require('./routes/cart.route')
 const paymentRoutes = require("./routes/payment.route");
+const orderRoutes = require("./routes/order.route");
 
 const path = require('path');
 const { checkForAuthenticationCookie } = require('./middlewares/authentication');
@@ -55,6 +56,8 @@ app.use('/metal', metalRoute);
 app.use('/cart', cartRoute)
 app.use('/user', userRoute);
 app.use("/payment", paymentRoutes);
+
+app.use("/order", orderRoutes);
 app.use('/', staticRoute);
 
 const PORT = process.env.PORT || 8000;

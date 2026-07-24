@@ -54,8 +54,7 @@ usersSchema.static("matchPasswordAndGenerateToken", async function(email, passwo
     const role = user.role;
 
     const userProvidedHash = createHmac("sha256", salt).update(password).digest("hex");
-    console.log("DB password:", user.password);
-    console.log("Generated:", userProvidedHash);
+
     
     if(hashedPassword !== userProvidedHash) throw new Error('Incorrect Password');
     

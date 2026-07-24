@@ -161,28 +161,41 @@ exports.createOrder = async (req, res) => {
         currency: "INR",
         receipt,
       });
+    
+    const orderNumber = `MIA${Date.now()}`;
 
     const order = await Order.create({
-      user: userId,
+    orderNumber,
 
-      items,
+    user: userId,
 
-      shippingAddress,
+    items,
 
-      subtotal,
+    shippingAddress,
 
-      gstTotal,
+    subtotal,
 
-      amount,
+    gstTotal,
 
-      currency: "INR",
+    amount,
 
-      receipt,
+    currency: "INR",
 
-      razorpayOrderId:
-        razorpayOrder.id,
+    receipt,
 
-      paymentStatus: "PENDING",
+    razorpayOrderId: razorpayOrder.id,
+
+    paymentStatus: "PENDING",
+
+    orderStatus: "PLACED",
+
+    tracking: [
+        {
+        status: "Order Placed",
+        location: "Online Store",
+        message: "Your order has been placed successfully.",
+        },
+    ],
     });
 
     return res.status(201).json({
@@ -301,9 +314,34 @@ exports.verifyPayment = async (req, res) => {
     // ----------------------------
 
     order.paymentStatus = "SUCCESS";
+
+    order.orderStatus = "CONFIRMED";
+
     order.razorpayPaymentId = razorpay_payment_id;
+
     order.razorpaySignature = razorpay_signature;
+
     order.paidAt = new Date();
+
+    const hasPaymentSuccess = order.tracking.some(
+    t => t.status === "Payment Successful"
+    );
+
+    if (!hasPaymentSuccess) {
+
+    order.tracking.push({
+        status: "Payment Successful",
+        location: "Online Payment",
+        message: "Payment received successfully."
+    });
+
+    order.tracking.push({
+        status: "Order Confirmed",
+        location: "Warehouse",
+        message: "Your order has been confirmed."
+    });
+
+    }
 
     await order.save();
 
@@ -387,8 +425,18 @@ exports.paymentFailed = async (req, res) => {
 
     // Don't overwrite successful payment
     if (order.paymentStatus === "PENDING") {
-      order.paymentStatus = "FAILED";
-      await order.save();
+
+        order.paymentStatus = "FAILED";
+
+        order.orderStatus = "CANCELLED";
+
+        order.tracking.push({
+            status: "Payment Failed",
+            location: "Online Payment",
+            message: "Payment could not be completed."
+        });
+
+        await order.save();
     }
 
     return res.status(200).json({

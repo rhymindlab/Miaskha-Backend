@@ -1,18 +1,61 @@
 const { Router } = require("express");
-const { handleAddProduct, handleDeleteProduct, handleProduct, handleProductUpdation, handleGetAllProducts, handleFilterByCategory } = require("../controllers/product.controller");
-const { restrictToLoggedinUserOnly, restrictToAdminOnly } = require("../middlewares/authentication");
-const Product = require("../models/Product");
-const Collection = require("../models/collection");
-const Category = require("../models/category")
 
+const {
+    handleAddProduct,
+    handleDeleteProduct,
+    handleProduct,
+    handleProductUpdation,
+    handleGetAllProducts,
+    handleFilterByCategory
+} = require("../controllers/product.controller");
+
+const {
+    restrictToLoggedinUserOnly,
+    restrictToAdminOnly
+} = require("../middlewares/authentication");
+
+const Product = require("../models/Product");
+const Category = require("../models/category");
+const Collection = require("../models/collection");
 
 const router = Router();
-// router.get('/', handleGetAllProducts)
-router.post('/addproduct', restrictToLoggedinUserOnly, restrictToAdminOnly, handleAddProduct);
-router.get('/:id', handleProduct)
-router.patch('/:id',restrictToLoggedinUserOnly, restrictToAdminOnly, handleProductUpdation);
-router.delete('/:id', restrictToLoggedinUserOnly, restrictToAdminOnly, handleDeleteProduct);
-router.get("/category/:slug", handleFilterByCategory); 
+
+/* ======================================================
+    ADMIN ROUTES
+====================================================== */
+
+router.post(
+    "/addproduct",
+    restrictToLoggedinUserOnly,
+    restrictToAdminOnly,
+    handleAddProduct
+);
+
+router.get("/:id", handleProduct);
+
+router.patch(
+    "/:id",
+    restrictToLoggedinUserOnly,
+    restrictToAdminOnly,
+    handleProductUpdation
+);
+
+router.delete(
+    "/:id",
+    restrictToLoggedinUserOnly,
+    restrictToAdminOnly,
+    handleDeleteProduct
+);
+
+/* ======================================================
+    CATEGORY FILTER
+====================================================== */
+
+router.get("/category/:slug", handleFilterByCategory);
+
+/* ======================================================
+    ALL PRODUCTS
+====================================================== */
 
 router.get("/", async (req, res) => {
 
@@ -21,12 +64,18 @@ router.get("/", async (req, res) => {
         const {
 
             category,
-
             collection,
+            productType,
+            metalType,
+            purity,
 
             minPrice,
-
             maxPrice,
+
+            featured,
+
+            page = 1,
+            limit = 20,
 
             sort
 
@@ -34,18 +83,14 @@ router.get("/", async (req, res) => {
 
         const filter = {};
 
-        /*
-        --------------------------
-        CATEGORY
-        --------------------------
-        */
+        /* ==========================
+            CATEGORY
+        ========================== */
 
         if (category) {
 
             const categories = Array.isArray(category)
-
                 ? category
-
                 : [category];
 
             const categoryDocs = await Category.find({
@@ -66,18 +111,14 @@ router.get("/", async (req, res) => {
 
         }
 
-        /*
-        --------------------------
-        COLLECTION
-        --------------------------
-        */
+        /* ==========================
+            COLLECTION
+        ========================== */
 
         if (collection) {
 
             const collections = Array.isArray(collection)
-
                 ? collection
-
                 : [collection];
 
             const collectionDocs = await Collection.find({
@@ -90,7 +131,7 @@ router.get("/", async (req, res) => {
 
             });
 
-            filter.collection = {
+            filter.collections = {
 
                 $in: collectionDocs.map(item => item._id)
 
@@ -98,11 +139,49 @@ router.get("/", async (req, res) => {
 
         }
 
-        /*
-        --------------------------
-        PRICE
-        --------------------------
-        */
+        /* ==========================
+            PRODUCT TYPE
+        ========================== */
+
+        if (productType) {
+
+            filter.productType = productType;
+
+        }
+
+        /* ==========================
+            METAL
+        ========================== */
+
+        if (metalType) {
+
+            filter.metalType = metalType;
+
+        }
+
+        /* ==========================
+            PURITY
+        ========================== */
+
+        if (purity) {
+
+            filter.purity = purity;
+
+        }
+
+        /* ==========================
+            FEATURED
+        ========================== */
+
+        if (featured === "true") {
+
+            filter.isFeatured = true;
+
+        }
+
+        /* ==========================
+            PRICE
+        ========================== */
 
         if (minPrice || maxPrice) {
 
@@ -122,11 +201,9 @@ router.get("/", async (req, res) => {
 
         }
 
-        /*
-        --------------------------
-        QUERY
-        --------------------------
-        */
+        /* ==========================
+            QUERY
+        ========================== */
 
         let query = Product.find(filter)
 
@@ -134,20 +211,16 @@ router.get("/", async (req, res) => {
 
             .populate("collections", "name slug");
 
-        /*
-        --------------------------
-        SORTING
-        --------------------------
-        */
+        /* ==========================
+            SORTING
+        ========================== */
 
         switch (sort) {
 
             case "price-low-high":
 
                 query = query.sort({
-
                     salePrice: 1
-
                 });
 
                 break;
@@ -155,9 +228,7 @@ router.get("/", async (req, res) => {
             case "price-high-low":
 
                 query = query.sort({
-
                     salePrice: -1
-
                 });
 
                 break;
@@ -165,9 +236,7 @@ router.get("/", async (req, res) => {
             case "newest":
 
                 query = query.sort({
-
                     createdAt: -1
-
                 });
 
                 break;
@@ -175,33 +244,72 @@ router.get("/", async (req, res) => {
             case "oldest":
 
                 query = query.sort({
-
                     createdAt: 1
+                });
 
+                break;
+
+            case "name":
+
+                query = query.sort({
+                    title: 1
                 });
 
                 break;
 
             default:
 
-                break;
+                query = query.sort({
+                    createdAt: -1
+                });
 
-        }   
-        const products = await query;
+        }
 
-        return res.json(products);
+        /* ==========================
+            PAGINATION
+        ========================== */
+
+        const pageNumber = Number(page);
+
+        const limitNumber = Number(limit);
+
+        const skip = (pageNumber - 1) * limitNumber;
+
+        query = query.skip(skip).limit(limitNumber);
+
+        const totalProducts =
+            await Product.countDocuments(filter);
+
+        const products = await query.lean();
+
+        return res.json({
+
+            success: true,
+
+            currentPage: pageNumber,
+
+            totalPages:
+                Math.ceil(totalProducts / limitNumber),
+
+            totalProducts,
+
+            count: products.length,
+
+            products
+
+        });
 
     }
 
-    catch (err) {
+    catch (error) {
 
-        console.log(err);
+        console.log(error);
 
         return res.status(500).json({
 
             success: false,
 
-            message: err.message
+            message: error.message
 
         });
 

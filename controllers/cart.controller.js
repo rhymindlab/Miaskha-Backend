@@ -1,59 +1,263 @@
-const cart = require("../models/cart");
+const Cart = require("../models/cart");
+const Product = require("../models/Product");
 
-async function handleGetCart(req,res){
-    const id = req.body.id;
-    const data = await cart.find({user_id:id})
-    return res.json(data);
-}
-async function handleGetCartForAdmin(req,res){
-    const data = await cart.find()
-    return res.json(data);
-}
-async function handleAddtoCart(req,res){
-    try{
-        const {user_id, product_id, customizations, salePrice, gst,} = req.body;
-        const existingItem = await cart.findOne({user_id, product_id,
-            "customizations.Matarial": customizations.Matarial,
-            "customizations.Purity": customizations.Purity });
-        
+// ==============================
+// GET USER CART
+// ==============================
+async function handleGetCart(req, res) {
+  try {
+    const { id } = req.params;
 
-        if (existingItem) {
-            await cart.findByIdAndUpdate(existingItem._id, {$inc: { quantity: 1 }})
-        }
-        else{
-            await cart.create({user_id, product_id, customizations, salePrice, gst, quantity:1});
-        }
-        return res.status(201).json({success: true,});
-
-    }catch(error){
-        console.log(error);
-        return res.status(500).json({ error: 'Server error' });
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: "User id is required",
+      });
     }
-    
+
+    const data = await Cart.find({
+      user_id: String(id),
+    }).sort({ createdAt: -1 });
+
+    return res.status(200).json(data);
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Unable to fetch cart",
+    });
+  }
 }
 
+// ==============================
+// GET ALL CARTS (ADMIN)
+// ==============================
+async function handleGetCartForAdmin(req, res) {
+  try {
+    const data = await Cart.find().sort({
+      createdAt: -1,
+    });
+
+    return res.status(200).json(data);
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Unable to fetch carts",
+    });
+  }
+}
+
+// ==============================
+// ADD TO CART
+// ==============================
+async function handleAddtoCart(req, res) {
+  try {
+    const {
+      user_id,
+      product_id,
+      customizations,
+      salePrice,
+      gst,
+      title,
+      sku,
+      image,
+    } = req.body;
+
+    if (!user_id || !product_id) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing required fields",
+      });
+    }
+
+    const product = await Product.findById(product_id)
+      .select("_id");
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    const existingItem = await Cart.findOne({
+      user_id,
+      product_id,
+
+      "customizations.Material":
+        customizations?.Material || "",
+
+      "customizations.Purity":
+        customizations?.Purity || "",
+    });
+
+    if (existingItem) {
+
+      existingItem.quantity += 1;
+
+      await existingItem.save();
+
+    } else {
+
+      await Cart.create({
+
+        user_id,
+
+        product_id,
+
+        title,
+
+        sku,
+
+        image,
+
+        customizations,
+
+        salePrice,
+
+        gst,
+
+        quantity: 1,
+
+      });
+
+    }
+
+    return res.status(201).json({
+      success: true,
+      message: "Cart updated",
+    });
+
+  } catch (error) {
+
+    console.error(error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+
+  }
+}
+
+// ==============================
+// MERGE CART (After Login)
+// ==============================
 async function handleMergeCart(req, res) {
   try {
     const { id, carts } = req.body;
 
-    await cart.deleteMany({ user_id: id });
-    
-    const docs = carts.map((item) => ({
-        user_id: id,
+    if (!id || !Array.isArray(carts)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid request",
+      });
+    }
+
+    await Cart.deleteMany({
+      user_id: String(id),
+    });
+
+    if (carts.length) {
+      const docs = carts.map((item) => ({
+        user_id: String(id),
+
         product_id: item.product_id,
-        quantity: item.quantity,
-        image: item.image,
-        customizations: item.customizations,
-        salePrice: item.salePrice,
-        gst: item.gst,
-    }));
 
-    await cart.insertMany(docs);
+        title: item.title || item.name || "",
 
-    const data = await cart.find({user_id:id});
+        sku: item.sku || "",
 
-    return res.json(data);
+        image: item.image || "",
 
+        quantity: Number(item.quantity) || 1,
+
+        customizations: {
+          Material:
+            item.customizations?.Material || "",
+
+          Purity:
+            item.customizations?.Purity || "",
+        },
+
+        salePrice: Number(item.salePrice) || 0,
+
+        gst: Number(item.gst) || 0,
+      }));
+
+      await Cart.insertMany(docs);
+    }
+
+    const updatedCart = await Cart.find({
+      user_id: String(id),
+    });
+
+    return res.status(200).json(updatedCart);
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Unable to merge cart",
+    });
+  }
+}
+
+//
+// NEW API
+// UPDATE QUANTITY
+//
+async function handleUpdateCartItem(req, res) {
+  try {
+    const { id } = req.params;
+
+    const { quantity } = req.body;
+
+    const item = await Cart.findById(id);
+
+    if (!item) {
+      return res.status(404).json({
+        success: false,
+        message: "Cart item not found",
+      });
+    }
+
+    item.quantity = Math.max(
+      1,
+      Number(quantity) || 1
+    );
+
+    await item.save();
+
+    return res.status(200).json({
+      success: true,
+      item,
+    });
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      success: false,
+    });
+  }
+}
+
+//
+// NEW API
+// DELETE CART ITEM
+//
+async function handleDeleteCartItem(req, res) {
+  try {
+    const { id } = req.params;
+
+    await Cart.findByIdAndDelete(id);
+
+    return res.status(200).json({
+      success: true,
+    });
   } catch (error) {
     console.error(error);
 
@@ -64,8 +268,12 @@ async function handleMergeCart(req, res) {
 }
 
 module.exports = {
-    handleAddtoCart,
-    handleGetCart,
-    handleGetCartForAdmin,
-    handleMergeCart,
-}
+  handleAddtoCart,
+  handleGetCart,
+  handleGetCartForAdmin,
+  handleMergeCart,
+
+  // NEW
+  handleUpdateCartItem,
+  handleDeleteCartItem,
+};

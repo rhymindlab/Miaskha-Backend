@@ -101,7 +101,7 @@ router.get("/", async (req, res) => {
 
                 }
 
-            });
+            }).lean();
 
             filter.category = {
 
@@ -129,7 +129,7 @@ router.get("/", async (req, res) => {
 
                 }
 
-            });
+            }).lean();
 
             filter.collections = {
 
@@ -209,7 +209,9 @@ router.get("/", async (req, res) => {
 
             .populate("category", "name slug")
 
-            .populate("collections", "name slug");
+            .populate("collections", "name slug")
+
+            .lean();
 
         /* ==========================
             SORTING

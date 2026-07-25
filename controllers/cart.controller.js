@@ -17,7 +17,7 @@ async function handleGetCart(req, res) {
 
     const data = await Cart.find({
       user_id: String(id),
-    }).sort({ createdAt: -1 });
+    }).lean().sort({ createdAt: -1 });
 
     return res.status(200).json(data);
   } catch (error) {
@@ -35,7 +35,7 @@ async function handleGetCart(req, res) {
 // ==============================
 async function handleGetCartForAdmin(req, res) {
   try {
-    const data = await Cart.find().sort({
+    const data = await Cart.find().lean().sort({
       createdAt: -1,
     });
 
@@ -193,7 +193,7 @@ async function handleMergeCart(req, res) {
 
     const updatedCart = await Cart.find({
       user_id: String(id),
-    });
+    }).lean();
 
     return res.status(200).json(updatedCart);
   } catch (error) {

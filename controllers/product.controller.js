@@ -744,8 +744,8 @@ async function handleGetAllProducts(req, res) {
     try {
 
         const products = await Product.find()
-            .populate("category")
-            .populate("collections")
+            .populate("category", "name slug")
+            .populate("collections", "name slug")
             .lean();
 
         return res.json(products);
@@ -812,7 +812,7 @@ async function handleFilterByCategory(req, res) {
 
                 slug: { $in: collections }
 
-            });
+            }).lean();
 
             filter.collections = {
 

@@ -739,16 +739,16 @@ async function handleProduct(req, res) {
     GET ALL PRODUCTS
 ========================================================== */
 
-async function handleGetAllProducts(req, res) {
+async function handleGetProduct(req, res) {
 
     try {
 
-        const products = await Product.find()
-            .populate("category", "name slug")
-            .populate("collections", "name slug")
+
+        const product = await Product.findById(req.params.id)
+            .select("_id title metalType purity images pricing metalWeight stones makingCharges salePrice mrp")
             .lean();
 
-        return res.json(products);
+        return res.json(product);
 
     }
 
@@ -1022,7 +1022,7 @@ module.exports = {
 
     handleProduct,
 
-    handleGetAllProducts,
+    handleGetProduct,
 
     handleFilterByCategory
 

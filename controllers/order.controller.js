@@ -16,7 +16,7 @@ exports.getMyOrders = async (req, res) => {
 
     const orders = await Order.find({
       user: userId,
-    })
+    }).lean()
       .select(
         "orderNumber amount paymentStatus orderStatus createdAt tracking"
       )

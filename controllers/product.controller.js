@@ -298,6 +298,8 @@ async function handleAddProduct(req, res) {
             customizationFields
 
         } = req.body;
+        console.log(req.body);
+
 
         /* ==========================================
             GENERATE SLUG

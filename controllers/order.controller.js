@@ -47,9 +47,10 @@ exports.getOrderById = async (req, res) => {
     const userId = req.user?._id || req.user?.id;
     const { id } = req.params;
 
-    const order = await Order.findById(id).populate(
+
+    const order = await Order.findById(id).select("user items shippingAddress paymentMethod").populate(
       "items.product",
-      "title images slug"
+      "_id"
     );
 
     if (!order) {
@@ -89,7 +90,7 @@ exports.getTracking = async (req, res) => {
     const { id } = req.params;
 
     const order = await Order.findById(id).select(
-      "orderNumber orderStatus tracking"
+      "user orderNumber orderStatus tracking"
     );
 
     if (!order) {

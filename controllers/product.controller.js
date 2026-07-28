@@ -258,11 +258,8 @@ function buildMakingCharges(body) {
 
 
 async function handleAddProduct(req, res) {
-
     try {
-
         const {
-
             title,
             sku,
             productType,
@@ -275,6 +272,12 @@ async function handleAddProduct(req, res) {
             metalWeight,
             metalType,
             purity,
+
+            // Shiprocket / Shipping
+            shippingWeight,
+            shippingLength,
+            shippingBreadth,
+            shippingHeight,
 
             shortDescription,
             description,
@@ -295,20 +298,37 @@ async function handleAddProduct(req, res) {
             isFeatured,
             isActive,
 
-            customizationFields
-
+            customizationFields,
         } = req.body;
-    
-
 
         /* ==========================================
-            GENERATE SLUG
+           VALIDATION
+        ========================================== */
+
+        if (!title?.trim()) {
+            return res.status(400).send("Product title is required");
+        }
+
+        if (!sku?.trim()) {
+            return res.status(400).send("SKU is required");
+        }
+
+        if (!productType) {
+            return res.status(400).send("Product type is required");
+        }
+
+        if (!category) {
+            return res.status(400).send("Category is required");
+        }
+
+        /* ==========================================
+           GENERATE SLUG
         ========================================== */
 
         const slug = await generateUniqueSlug(title);
 
         /* ==========================================
-            FORMAT DATA
+           FORMAT DATA
         ========================================== */
 
         const formattedImages = buildImageArray(images);
@@ -335,22 +355,51 @@ async function handleAddProduct(req, res) {
             buildMakingCharges(req.body);
 
         /* ==========================================
-            CREATE PRODUCT
+           SHIPPING / SHIPROCKET PACKAGE
+        ========================================== */
+
+        const shipping = {
+            weight: Math.max(
+                Number(shippingWeight) || 0.5,
+                0.01
+            ),
+
+            length: Math.max(
+                Number(shippingLength) || 15,
+                0.1
+            ),
+
+            breadth: Math.max(
+                Number(shippingBreadth) || 12,
+                0.1
+            ),
+
+            height: Math.max(
+                Number(shippingHeight) || 6,
+                0.1
+            ),
+        };
+
+        /* ==========================================
+           CREATE PRODUCT
         ========================================== */
 
         const product = await Product.create({
-
-            // Basic
+            // ======================================
+            // BASIC
+            // ======================================
 
             title: title.trim(),
 
             slug,
 
-            sku: sku.trim(),
+            sku: sku.trim().toUpperCase(),
 
             productType,
 
-            // Pricing
+            // ======================================
+            // PRICING
+            // ======================================
 
             pricing,
 
@@ -362,81 +411,150 @@ async function handleAddProduct(req, res) {
 
             makingCharges,
 
-            // Metal
+            // ======================================
+            // METAL
+            // ======================================
 
-            metalType,
+            metalType: metalType || "",
 
-            purity,
+            purity: purity || undefined,
 
             metalWeight: Number(metalWeight) || 0,
 
             productWeight: Number(productWeight) || 0,
 
-            // Description
+            // ======================================
+            // SHIPPING / SHIPROCKET
+            // ======================================
 
-            shortDescription: shortDescription?.trim() || "",
+            shipping,
 
-            description: description?.trim() || "",
+            // ======================================
+            // DESCRIPTION
+            // ======================================
 
-            // Media
+            shortDescription:
+                shortDescription?.trim() || "",
+
+            description:
+                description?.trim() || "",
+
+            // ======================================
+            // MEDIA
+            // ======================================
 
             images: formattedImages,
 
             videos: formattedVideos,
 
-            // Category
+            // ======================================
+            // CATEGORY
+            // ======================================
 
             category,
 
             collections: toArray(collections),
 
-            // Stones
+            // ======================================
+            // STONES
+            // ======================================
 
             stones,
 
-            // Specifications
+            // ======================================
+            // SPECIFICATIONS
+            // ======================================
 
             specifications,
 
-            // Customization
+            // ======================================
+            // CUSTOMIZATION
+            // ======================================
 
-            customizationFields: formattedCustomizationFields,
+            customizationFields:
+                formattedCustomizationFields,
 
+            // ======================================
             // SEO
+            // ======================================
 
-            seoTitle: seoTitle?.trim() || "",
+            seoTitle:
+                seoTitle?.trim() || "",
 
-            seoDescription: seoDescription?.trim() || "",
+            seoDescription:
+                seoDescription?.trim() || "",
 
-            seoKeywords: formattedSeoKeywords,
+            seoKeywords:
+                formattedSeoKeywords,
 
-            // Status
+            // ======================================
+            // STATUS
+            // ======================================
 
-            isFeatured: isFeatured === "on",
+            isFeatured:
+                isFeatured === "on",
 
             isActive:
                 isActive === undefined
                     ? true
-                    : isActive === "on"
-
+                    : isActive === "on",
         });
 
         console.log(
             `Product created successfully: ${product.title}`
         );
 
+        console.log(
+            "Shipping package:",
+            product.shipping
+        );
+
         return res.redirect("/");
+    } catch (error) {
+        console.error(
+            "Error creating product:",
+            error
+        );
 
+        /* ==========================================
+           DUPLICATE SKU / SLUG
+        ========================================== */
+
+        if (error.code === 11000) {
+            const field = Object.keys(
+                error.keyPattern || {}
+            )[0];
+
+            return res
+                .status(400)
+                .send(
+                    `${
+                        field || "Product"
+                    } already exists`
+                );
+        }
+
+        /* ==========================================
+           MONGOOSE VALIDATION
+        ========================================== */
+
+        if (error.name === "ValidationError") {
+            const messages = Object.values(
+                error.errors
+            ).map((err) => err.message);
+
+            return res
+                .status(400)
+                .send(messages.join(", "));
+        }
+
+        return res
+            .status(500)
+            .send(
+                error.message ||
+                    "Unable to create product"
+            );
     }
-
-    catch (error) {
-
-        console.error("Error creating product:", error);
-
-        return res.status(500).send(error.message);
-
-    }
-
 }
 
 /* ==========================================================

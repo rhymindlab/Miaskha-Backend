@@ -433,6 +433,105 @@ name="productWeight">
 <hr class="my-5">
 
 <!-- ========================================= -->
+<!-- SHIPPING / SHIPROCKET PACKAGE DETAILS -->
+<!-- ========================================= -->
+
+<h4 class="border-bottom pb-2 mb-4">
+    Shipping Package Details
+</h4>
+
+<p class="text-muted mb-4">
+    Enter the final packed jewellery parcel dimensions.
+    These values are used for Shiprocket shipping and courier calculations.
+</p>
+
+<div class="row g-3">
+
+    <!-- Shipping Weight -->
+    <div class="col-12 col-md-6 col-lg-3">
+        <label class="form-label">
+            Package Weight (kg)
+        </label>
+
+        <input
+            class="form-control"
+            type="number"
+            name="shippingWeight"
+            step="0.01"
+            min="0.01"
+            value="0.5"
+            required
+        >
+
+        <small class="text-muted">
+            Final packed weight including box.
+        </small>
+    </div>
+
+    <!-- Length -->
+    <div class="col-12 col-md-6 col-lg-3">
+        <label class="form-label">
+            Length (cm)
+        </label>
+
+        <input
+            class="form-control"
+            type="number"
+            name="shippingLength"
+            step="0.1"
+            min="0.1"
+            value="15"
+            required
+        >
+    </div>
+
+    <!-- Breadth -->
+    <div class="col-12 col-md-6 col-lg-3">
+        <label class="form-label">
+            Breadth (cm)
+        </label>
+
+        <input
+            class="form-control"
+            type="number"
+            name="shippingBreadth"
+            step="0.1"
+            min="0.1"
+            value="12"
+            required
+        >
+    </div>
+
+    <!-- Height -->
+    <div class="col-12 col-md-6 col-lg-3">
+        <label class="form-label">
+            Height (cm)
+        </label>
+
+        <input
+            class="form-control"
+            type="number"
+            name="shippingHeight"
+            step="0.1"
+            min="0.1"
+            value="6"
+            required
+        >
+    </div>
+
+</div>
+
+<div class="alert alert-light border mt-4 mb-0">
+    <strong>Note:</strong>
+    Package weight is different from Metal Weight and Product Weight.
+    Measure the jewellery after it is packed in its shipping box.
+</div>
+
+<hr class="my-5">
+
+
+
+<!-- ========================================= -->
 <!-- DESCRIPTION -->
 <!-- ========================================= -->
 
@@ -456,6 +555,8 @@ rows="3"
 name="shortDescription"></textarea>
 
 </div>
+
+
 
 <div class="mb-4">
 

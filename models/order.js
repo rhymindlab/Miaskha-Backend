@@ -1,10 +1,78 @@
 const mongoose = require("mongoose");
 
+const shipmentHistorySchema = new mongoose.Schema(
+  {
+    orderId: {
+      type: String,
+      default: null,
+    },
+
+    shipmentId: {
+      type: String,
+      default: null,
+    },
+
+    awbCode: {
+      type: String,
+      default: null,
+    },
+
+    courierId: {
+      type: Number,
+      default: null,
+    },
+
+    courierName: {
+      type: String,
+      default: null,
+    },
+
+    status: {
+      type: String,
+      default: "",
+    },
+
+    trackingUrl: {
+      type: String,
+      default: null,
+    },
+
+    reason: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+
+    createdAt: {
+      type: Date,
+      default: Date.now,
+    },
+
+    closedAt: {
+      type: Date,
+      default: null,
+    },
+  },
+  {
+    _id: false,
+  }
+);
+
+/* ----------------------------------------------------------
+   Tracking Timeline
+---------------------------------------------------------- */
+
 const trackingSchema = new mongoose.Schema(
   {
     status: {
       type: String,
       required: true,
+      trim: true,
+    },
+
+    code: {
+      type: String,
+      default: "",
       trim: true,
     },
 
@@ -25,8 +93,14 @@ const trackingSchema = new mongoose.Schema(
       default: Date.now,
     },
   },
-  { _id: false }
+  {
+    _id: false,
+  }
 );
+
+/* ----------------------------------------------------------
+   Shiprocket Details
+---------------------------------------------------------- */
 
 const shiprocketSchema = new mongoose.Schema(
   {
@@ -45,7 +119,17 @@ const shiprocketSchema = new mongoose.Schema(
       default: null,
     },
 
+    courierId: {
+      type: Number,
+      default: null,
+    },
+
     courierName: {
+      type: String,
+      default: null,
+    },
+
+    channelOrderId: {
       type: String,
       default: null,
     },
@@ -54,9 +138,39 @@ const shiprocketSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+
+    pickupTokenNumber: {
+      type: String,
+      default: null,
+    },
+    pickupRequested: {
+      type: Boolean,
+      default: false,
+    },
+
+    pickupRequestedAt: {
+      type: Date,
+      default: null,
+    },
+
+    currentStatus: {
+      type: String,
+      default: "Order Placed",
+    },
+
+    lastSyncedAt: {
+      type: Date,
+      default: null,
+    },
   },
-  { _id: false }
+  {
+    _id: false,
+  }
 );
+
+/* ----------------------------------------------------------
+   Order Items
+---------------------------------------------------------- */
 
 const orderItemSchema = new mongoose.Schema(
   {
@@ -84,13 +198,15 @@ const orderItemSchema = new mongoose.Schema(
     },
 
     // Price of one item before GST
+
     price: {
       type: Number,
       required: true,
       min: 0,
     },
 
-    // GST for one item
+    // GST per item
+
     gst: {
       type: Number,
       default: 0,
@@ -98,14 +214,49 @@ const orderItemSchema = new mongoose.Schema(
     },
 
     // (price + gst) × quantity
+
     total: {
       type: Number,
       required: true,
       min: 0,
     },
+    sku: {
+  type: String,
+  default: "",
+  trim: true,
+},
+
+shipping: {
+  weight: {
+    type: Number,
+    default: 0.5,
   },
-  { _id: false }
+
+  length: {
+    type: Number,
+    default: 15,
+  },
+
+  breadth: {
+    type: Number,
+    default: 12,
+  },
+
+  height: {
+    type: Number,
+    default: 6,
+  },
+},
+  },
+  {
+    _id: false,
+  }
 );
+
+
+/* ----------------------------------------------------------
+   Shipping Address
+---------------------------------------------------------- */
 
 const shippingAddressSchema = new mongoose.Schema(
   {
@@ -163,12 +314,19 @@ const shippingAddressSchema = new mongoose.Schema(
       trim: true,
     },
   },
-  { _id: false }
+  {
+    _id: false,
+  }
 );
+
+/* ----------------------------------------------------------
+   Order Schema
+---------------------------------------------------------- */
 
 const orderSchema = new mongoose.Schema(
   {
-    // Human-readable order number
+    // Human-readable Order Number
+
     orderNumber: {
       type: String,
       unique: true,
@@ -185,9 +343,10 @@ const orderSchema = new mongoose.Schema(
     items: {
       type: [orderItemSchema],
       required: true,
+
       validate: {
         validator: (items) => items.length > 0,
-        message: "An order must contain at least one item",
+        message: "Order must contain at least one product.",
       },
     },
 
@@ -220,7 +379,8 @@ const orderSchema = new mongoose.Schema(
       min: 0,
     },
 
-    // Final payable amount
+    // Final Payable Amount
+
     amount: {
       type: Number,
       required: true,
@@ -235,27 +395,33 @@ const orderSchema = new mongoose.Schema(
 
     paymentMethod: {
       type: String,
+
       enum: [
         "RAZORPAY",
         "COD",
       ],
+
       default: "RAZORPAY",
     },
 
     paymentStatus: {
       type: String,
+
       enum: [
         "PENDING",
         "SUCCESS",
         "FAILED",
         "REFUNDED",
       ],
+
       default: "PENDING",
+
       index: true,
     },
 
     orderStatus: {
       type: String,
+
       enum: [
         "PLACED",
         "CONFIRMED",
@@ -266,11 +432,14 @@ const orderSchema = new mongoose.Schema(
         "CANCELLED",
         "RETURNED",
       ],
+
       default: "PLACED",
+
       index: true,
     },
 
-    // Razorpay Details
+    /* ---------------- Razorpay ---------------- */
+
     razorpayOrderId: {
       type: String,
       index: true,
@@ -286,19 +455,28 @@ const orderSchema = new mongoose.Schema(
       default: "",
     },
 
-    // Shiprocket Details
+    /* ---------------- Shiprocket ---------------- */
+
     shiprocket: {
       type: shiprocketSchema,
       default: () => ({}),
     },
+    // Previous Shiprocket shipments / AWBs
+    shipmentHistory: {
+      type: [shipmentHistorySchema],
+      default: [],
+    },
 
-    // Tracking Timeline
+    /* ---------------- Tracking Timeline ---------------- */
+
     tracking: {
       type: [trackingSchema],
+
       default: [
         {
           status: "Order Placed",
-          location: "Online Store",
+          code: "PLACED",
+          location: "MIASHKA Store",
           message: "Your order has been placed successfully.",
         },
       ],
@@ -327,10 +505,49 @@ const orderSchema = new mongoose.Schema(
       default: "",
       trim: true,
     },
-  },
+
+      },
   {
     timestamps: true,
   }
 );
+
+/* ----------------------------------------------------------
+   Auto Generate Order Number
+---------------------------------------------------------- */
+
+orderSchema.pre("save", function () {
+  if (!this.orderNumber) {
+    const random = Math.floor(100000 + Math.random() * 900000);
+
+    this.orderNumber = `MSK-${new Date().getFullYear()}-${random}`;
+  }
+});
+
+/* ----------------------------------------------------------
+   Instance Methods
+---------------------------------------------------------- */
+
+orderSchema.methods.addTracking = function ({
+  status,
+  code = "",
+  location = "",
+  message = "",
+  date = new Date(),
+}) {
+  this.tracking.push({
+    status,
+    code,
+    location,
+    message,
+    date,
+  });
+
+  return this.save();
+};
+
+/* ----------------------------------------------------------
+   Model
+---------------------------------------------------------- */
 
 module.exports = mongoose.model("Order", orderSchema);

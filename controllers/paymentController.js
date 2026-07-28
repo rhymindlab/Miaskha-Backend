@@ -4,6 +4,10 @@ const razorpay = require("../config/razorpay");
 const Order = require("../models/order");
 const Cart = require("../models/cart");
 const Product = require("../models/Product");
+const Users = require("../models/users");
+const {
+  createOrder: createShiprocketOrder,
+} = require("../services/shiprocket.service");
 
 const getUserId = (req) => req.user?._id || req.user?.id;
 
@@ -16,6 +20,118 @@ const safeEqual = (first, second) => {
     Buffer.from(first, "utf8"),
     Buffer.from(second, "utf8")
   );
+};
+
+const buildShiprocketPayload = (order, user) => {
+  const address = order.shippingAddress;
+
+  // Shiprocket expects one package's dimensions.
+  // For multiple products, use the largest dimensions and
+  // total packed weight as a practical starting point.
+  const totalWeight = order.items.reduce((total, item) => {
+    const weight = Number(item.shipping?.weight) || 0.5;
+    return total + weight * item.quantity;
+  }, 0);
+
+  const length = Math.max(
+    ...order.items.map(
+      (item) => Number(item.shipping?.length) || 15
+    )
+  );
+
+  const breadth = Math.max(
+    ...order.items.map(
+      (item) => Number(item.shipping?.breadth) || 12
+    )
+  );
+
+  const height = Math.max(
+    ...order.items.map(
+      (item) => Number(item.shipping?.height) || 6
+    )
+  );
+
+  return {
+    order_id: order.orderNumber,
+
+    order_date: new Date(order.createdAt)
+      .toISOString()
+      .slice(0, 16)
+      .replace("T", " "),
+
+    pickup_location:
+      process.env.SHIPROCKET_PICKUP_LOCATION,
+
+    billing_customer_name:
+      address.firstName,
+
+    billing_last_name:
+      address.lastName || "",
+
+    billing_address:
+      address.address,
+
+    billing_city:
+      address.city,
+
+    billing_pincode:
+      String(address.pinCode),
+
+    billing_state:
+      address.state,
+
+    billing_country:
+      address.country || "India",
+
+    billing_email:
+      user.email,
+
+    billing_phone:
+      address.mobile,
+
+    shipping_is_billing: true,
+
+    order_items: order.items.map((item) => ({
+      name: item.title,
+
+      sku:
+        item.sku ||
+        String(item.product),
+
+      units: item.quantity,
+
+      selling_price: Number(item.price),
+
+      discount: 0,
+
+      tax: Number(item.gst) || 0,
+
+      hsn: "",
+    })),
+
+    payment_method: "Prepaid",
+
+    shipping_charges:
+      Number(order.shippingCharge) || 0,
+
+    giftwrap_charges: 0,
+
+    transaction_charges: 0,
+
+    total_discount:
+      Number(order.discount) || 0,
+
+    sub_total:
+      Number(order.subtotal) || Number(order.amount),
+
+    length,
+
+    breadth,
+
+    height,
+
+    weight: Math.max(totalWeight, 0.5),
+  };
 };
 
 // ==============================
@@ -70,7 +186,7 @@ exports.createOrder = async (req, res) => {
         $in: productIds,
       },
     })
-      .select("title images")
+      .select("title images sku shipping productWeight")
       .lean();
 
     const productMap = new Map(
@@ -127,6 +243,9 @@ exports.createOrder = async (req, res) => {
           product.title ||
           "Product",
 
+        sku:
+          product.sku || "",
+
         image:
           item.image ||
           product.images?.[0] ||
@@ -139,6 +258,20 @@ exports.createOrder = async (req, res) => {
         gst,
 
         total: itemTotal,
+
+        shipping: {
+          weight:
+            Number(product.shipping?.weight) || 0.5,
+
+          length:
+            Number(product.shipping?.length) || 15,
+
+          breadth:
+            Number(product.shipping?.breadth) || 12,
+
+          height:
+            Number(product.shipping?.height) || 6,
+        },
       });
     }
 
@@ -239,6 +372,13 @@ exports.verifyPayment = async (req, res) => {
 
     const userId = getUserId(req);
 
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Please log in first",
+      });
+    }
+
     const {
       razorpay_order_id,
       razorpay_payment_id,
@@ -281,7 +421,10 @@ exports.verifyPayment = async (req, res) => {
       });
     }
 
-    // Prevent duplicate callback
+    /* ==========================================
+       ALREADY VERIFIED
+    ========================================== */
+
     if (order.paymentStatus === "SUCCESS") {
       return res.status(200).json({
         success: true,
@@ -290,8 +433,15 @@ exports.verifyPayment = async (req, res) => {
       });
     }
 
+    /* ==========================================
+       VERIFY RAZORPAY SIGNATURE
+    ========================================== */
+
     const generatedSignature = crypto
-      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+      .createHmac(
+        "sha256",
+        process.env.RAZORPAY_KEY_SECRET
+      )
       .update(
         `${razorpay_order_id}|${razorpay_payment_id}`
       )
@@ -309,45 +459,52 @@ exports.verifyPayment = async (req, res) => {
       });
     }
 
-    // ----------------------------
-    // Update Order
-    // ----------------------------
+    /* ==========================================
+       PAYMENT SUCCESS
+    ========================================== */
 
     order.paymentStatus = "SUCCESS";
-
     order.orderStatus = "CONFIRMED";
 
-    order.razorpayPaymentId = razorpay_payment_id;
+    order.razorpayPaymentId =
+      razorpay_payment_id;
 
-    order.razorpaySignature = razorpay_signature;
+    order.razorpaySignature =
+      razorpay_signature;
 
     order.paidAt = new Date();
 
-    const hasPaymentSuccess = order.tracking.some(
-    t => t.status === "Payment Successful"
-    );
+    const hasPaymentSuccess =
+      order.tracking.some(
+        (item) =>
+          item.status === "Payment Successful"
+      );
 
     if (!hasPaymentSuccess) {
-
-    order.tracking.push({
+      order.tracking.push({
         status: "Payment Successful",
+        code: "PAYMENT_SUCCESS",
         location: "Online Payment",
-        message: "Payment received successfully."
-    });
+        message:
+          "Payment received successfully.",
+      });
 
-    order.tracking.push({
+      order.tracking.push({
         status: "Order Confirmed",
-        location: "Warehouse",
-        message: "Your order has been confirmed."
-    });
-
+        code: "CONFIRMED",
+        location: "MIASHKA",
+        message:
+          "Your order has been confirmed.",
+      });
     }
 
+    // Save payment FIRST.
+    // Shiprocket failure must never undo payment success.
     await order.save();
 
-    // ----------------------------
-    // Update Product Stock
-    // ----------------------------
+    /* ==========================================
+       UPDATE STOCK
+    ========================================== */
 
     if (order.items.length) {
       await Product.bulkWrite(
@@ -356,6 +513,7 @@ exports.verifyPayment = async (req, res) => {
             filter: {
               _id: item.product,
             },
+
             update: {
               $inc: {
                 stock: -item.quantity,
@@ -366,18 +524,175 @@ exports.verifyPayment = async (req, res) => {
       );
     }
 
-    // ----------------------------
-    // Clear Cart
-    // ----------------------------
+    /* ==========================================
+       CLEAR CART
+    ========================================== */
 
     await Cart.deleteMany({
       user_id: String(order.user),
     });
 
+    /* ==========================================
+       CREATE SHIPROCKET ORDER
+    ========================================== */
+
+    let shiprocketCreated = false;
+    let shiprocketError = null;
+
+    try {
+      if (
+        !process.env.SHIPROCKET_EMAIL ||
+        !process.env.SHIPROCKET_PASSWORD ||
+        !process.env.SHIPROCKET_PICKUP_LOCATION
+      ) {
+        throw new Error(
+          "Shiprocket environment variables are missing"
+        );
+      }
+
+      /*
+       * Prevent duplicate Shiprocket orders.
+       *
+       * This is important because the frontend could
+       * potentially call payment verification more than once.
+       */
+      if (!order.shiprocket?.orderId) {
+        const user = await Users.findById(
+          order.user
+        )
+          .select("email")
+          .lean();
+
+        if (!user?.email) {
+          throw new Error(
+            "Customer email is missing"
+          );
+        }
+
+        const shiprocketPayload =
+          buildShiprocketPayload(
+            order,
+            user
+          );
+
+        console.log(
+          "Creating Shiprocket order:",
+          order.orderNumber
+        );
+
+        const shiprocketResponse =
+          await createShiprocketOrder(
+            shiprocketPayload
+          );
+
+        console.log(
+          "Shiprocket response:",
+          shiprocketResponse
+        );
+
+        /*
+         * Shiprocket create-order responses normally
+         * contain order_id and shipment_id.
+         */
+
+        if (!shiprocketResponse?.order_id) {
+          throw new Error(
+            shiprocketResponse?.message ||
+              "Shiprocket order was not created"
+          );
+        }
+
+        order.shiprocket.orderId =
+          String(
+            shiprocketResponse.order_id
+          );
+
+        order.shiprocket.shipmentId =
+          shiprocketResponse.shipment_id
+            ? String(
+                shiprocketResponse.shipment_id
+              )
+            : null;
+
+        order.shiprocket.currentStatus =
+          "Order Created";
+
+        order.shiprocket.lastSyncedAt =
+          new Date();
+
+        order.tracking.push({
+          status: "Shipment Created",
+          code: "SHIPMENT_CREATED",
+          location: "MIASHKA",
+          message:
+            "Your shipment has been created and is being prepared for dispatch.",
+        });
+
+        await order.save();
+
+        shiprocketCreated = true;
+
+        console.log(
+          "Shiprocket order created:",
+          order.shiprocket.orderId
+        );
+      } else {
+        shiprocketCreated = true;
+
+        console.log(
+          "Shiprocket order already exists:",
+          order.shiprocket.orderId
+        );
+      }
+    } catch (shiprocketErr) {
+      shiprocketError =
+        shiprocketErr.response?.data?.message ||
+        shiprocketErr.response?.data?.errors ||
+        shiprocketErr.message ||
+        "Unable to create Shiprocket order";
+
+      console.error(
+        "Shiprocket creation failed:",
+        shiprocketErr.response?.data ||
+          shiprocketErr.message
+      );
+
+      /*
+       * IMPORTANT:
+       *
+       * Do NOT:
+       *
+       * order.paymentStatus = "FAILED"
+       *
+       * Razorpay payment has already succeeded.
+       */
+    }
+
+    /* ==========================================
+       RESPONSE
+    ========================================== */
+
     return res.status(200).json({
       success: true,
+
       message: "Payment successful",
+
       order,
+
+      shipping: {
+        shiprocketCreated,
+
+        orderId:
+          order.shiprocket?.orderId ||
+          null,
+
+        shipmentId:
+          order.shiprocket?.shipmentId ||
+          null,
+
+        error:
+          shiprocketError,
+      },
     });
   } catch (error) {
     console.error(
@@ -468,3 +783,4 @@ exports.razorpayWebhook = async (req, res) => {
     });
   }
 };
+exports.buildShiprocketPayload = buildShiprocketPayload;

@@ -865,7 +865,7 @@ async function handleGetProduct(req, res) {
 
 
         const product = await Product.findById(req.params.id)
-            .select("_id title metalType purity images pricing metalWeight stones makingCharges salePrice mrp")
+            .select("_id title metalType purity images pricing metalWeight stones makingCharges salePrice mrp customizationFields")
             .lean();
 
         return res.json(product);

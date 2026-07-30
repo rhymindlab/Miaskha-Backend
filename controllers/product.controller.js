@@ -1128,6 +1128,95 @@ async function handleFilterByCategory(req, res) {
 
 }
 
+async function handleFilterByCollection(req, res) {
+    try {
+        const { slug } = req.params;
+
+        // =========================
+        // FIND COLLECTION
+        // =========================
+        const collection = await Collection.findOne({ slug }).lean();
+
+        if (!collection) {
+            return res.status(404).json({
+                success: false,
+                message: "Collection not found",
+            });
+        }
+
+        // =========================
+        // BASE FILTER
+        // =========================
+        const filter = {
+            collections: collection._id,
+            isActive: true,
+        };
+
+        // =========================
+        // CATEGORY FILTER
+        // =========================
+        const categories = toArray(req.query.categories);
+
+        if (categories.length > 0) {
+            const categoryDocs = await Category.find({
+                slug: { $in: categories },
+            })
+                .select("_id")
+                .lean();
+
+            filter.category = {
+                $in: categoryDocs.map((item) => item._id),
+            };
+        }
+
+        // =========================
+        // PURITY FILTER
+        // =========================
+        const purity = toArray(req.query.purity);
+
+        if (purity.length > 0) {
+            filter.purity = {
+                $in: purity,
+            };
+        }
+
+        // =========================
+        // METAL TYPE FILTER
+        // =========================
+        const metalTypes = toArray(req.query.metalType);
+
+        if (metalTypes.length > 0) {
+            filter.metalType = {
+                $in: metalTypes,
+            };
+        }
+
+        // =========================
+        // GET PRODUCTS
+        // =========================
+        const products = await Product.find(filter)
+            .populate("category")
+            .populate("collections")
+            .lean();
+
+        return res.status(200).json({
+            success: true,
+            collection,
+            count: products.length,
+            products,
+        });
+
+    } catch (error) {
+        console.error("Collection filter error:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+        });
+    }
+}
+
+
 /* ==========================================================
     EXPORTS
 ========================================================== */
@@ -1144,6 +1233,7 @@ module.exports = {
 
     handleGetProduct,
 
-    handleFilterByCategory
+    handleFilterByCategory,
+    handleFilterByCollection
 
 };

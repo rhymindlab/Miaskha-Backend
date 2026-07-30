@@ -6,7 +6,8 @@ const {
     handleProduct,
     handleProductUpdation,
     handleGetProduct,
-    handleFilterByCategory
+    handleFilterByCategory,
+    handleFilterByCollection
 } = require("../controllers/product.controller");
 
 const {
@@ -50,6 +51,7 @@ router.delete(
 ====================================================== */
 
 router.get("/category/:slug", handleFilterByCategory);
+
 
 /* ======================================================
     ALL PRODUCTS

@@ -2,138 +2,185 @@ const { randomBytes, createHmac } = require("crypto");
 const { Schema, model } = require("mongoose");
 const { createTokenForUser } = require("../services/authentication");
 
-const billingAddressSchema = new Schema(
-  {
-    firstName: {
-      type: String,
-      required: true,
-      trim: true,
+/* -------------------- Address Schema -------------------- */
+
+const addressSchema = new Schema(
+    {
+        firstName: {
+            type: String,
+            default: "",
+            trim: true,
+        },
+
+        lastName: {
+            type: String,
+            default: "",
+            trim: true,
+        },
+
+        company: {
+            type: String,
+            default: "",
+            trim: true,
+        },
+
+        country: {
+            type: String,
+            default: "",
+            trim: true,
+        },
+
+        address: {
+            type: String,
+            default: "",
+            trim: true,
+        },
+
+        city: {
+            type: String,
+            default: "",
+            trim: true,
+        },
+
+        state: {
+            type: String,
+            default: "",
+            trim: true,
+        },
+
+        pinCode: {
+            type: String,
+            default: "",
+            trim: true,
+        },
+
+        mobile: {
+            type: String,
+            default: "",
+            trim: true,
+        },
     },
-    lastName: {
-      type: String,
-      default: "",
-      trim: true,
-    },
-    company: {
-      type: String,
-      default: "",
-      trim: true,
-    },
-    country: {
-      type: String,
-      default: "",
-      trim: true,
-    },
-    address: {
-      type: String,
-      default: "",
-      trim: true,
-    },
-    city: {
-      type: String,
-      default: "",
-      trim: true,
-    },
-    state: {
-      type: String,
-      default: "",
-      trim: true,
-    },
-    pinCode: {
-      type: String,
-      default: "",
-      trim: true,
-    },
-    mobile: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-  },
-  { _id: false }
+    {
+        _id: false,
+    }
 );
+
+/* -------------------- User Schema -------------------- */
 
 const usersSchema = new Schema(
-  {
-    firstName: { type: String, default: "" },
-    lastName: { type: String, default: "" },
-    mobile: { type: String, default: "" },
-    address: { type: String, default: "" },
-    company: { type: String, default: "" },
-    country: { type: String, default: "" },
-    city: { type: String, default: "" },
-    state: { type: String, default: "" },
-    pinCode: { type: String, default: "" },
+    {
+        firstName: {
+            type: String,
+            default: "",
+        },
 
-    billingAddress: {
-      type: [billingAddressSchema],
-      default: [],
-    },
+        lastName: {
+            type: String,
+            default: "",
+        },
 
-    userName: {
-      type: String,
-      required: true,
-    },
+        userName: {
+            type: String,
+            required: true,
+            unique: true,
+            trim: true,
+        },
 
-    password: {
-      type: String,
-      required: true,
-    },
+        email: {
+            type: String,
+            required: true,
+            unique: true,
+            lowercase: true,
+            trim: true,
+        },
 
-    email: {
-      type: String,
-      required: true,
-    },
+        password: {
+            type: String,
+            required: true,
+        },
 
-    salt: {
-      type: String,
-    },
+        salt: {
+            type: String,
+        },
 
-    role: {
-      type: String,
-      enum: ["USER", "ADMIN"],
-      default: "USER",
+        role: {
+            type: String,
+            enum: ["USER", "ADMIN"],
+            default: "USER",
+        },
+
+        /* ---------- Billing ---------- */
+
+        billingAddress: {
+            type: addressSchema,
+            default: () => ({}),
+        },
+
+        /* ---------- Shipping ---------- */
+
+        shippingAddress: {
+            type: addressSchema,
+            default: () => ({}),
+        },
+
+        /* ---------- Same As Billing ---------- */
+
+        sameAsBilling: {
+            type: Boolean,
+            default: true,
+        },
     },
-  },
-  {
-    timestamps: true,
-  }
+    {
+        timestamps: true,
+    }
 );
 
-usersSchema.pre("save", function () {
-  if (!this.isModified("password")) return;
+/* -------------------- Password Hash -------------------- */
 
-  const salt = randomBytes(16).toString();
+usersSchema.pre("save", function (next) {
+    if (!this.isModified("password")) {
+        return next();
+    }
 
-  const hashedPassword = createHmac("sha256", salt)
-    .update(this.password)
-    .digest("hex");
+    const salt = randomBytes(16).toString("hex");
 
-  this.salt = salt;
-  this.password = hashedPassword;
+    const hashedPassword = createHmac("sha256", salt)
+        .update(this.password)
+        .digest("hex");
+
+    this.salt = salt;
+    this.password = hashedPassword;
+
+    next();
 });
 
+/* -------------------- Login -------------------- */
+
 usersSchema.static(
-  "matchPasswordAndGenerateToken",
-  async function (email, password) {
-    const user = await this.findOne({ email });
+    "matchPasswordAndGenerateToken",
+    async function (email, password) {
 
-    if (!user) throw new Error("User Not Found");
+        const user = await this.findOne({ email });
 
-    const userProvidedHash = createHmac("sha256", user.salt)
-      .update(password)
-      .digest("hex");
+        if (!user) {
+            throw new Error("User Not Found");
+        }
 
-    if (user.password !== userProvidedHash)
-      throw new Error("Incorrect Password");
+        const hash = createHmac("sha256", user.salt)
+            .update(password)
+            .digest("hex");
 
-    const token = createTokenForUser(user);
+        if (hash !== user.password) {
+            throw new Error("Incorrect Password");
+        }
 
-    return {
-      token,
-      role: user.role,
-    };
-  }
+        const token = createTokenForUser(user);
+
+        return {
+            token,
+            role: user.role,
+        };
+    }
 );
 
 const Users = model("Users", usersSchema);

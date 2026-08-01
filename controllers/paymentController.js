@@ -1,786 +1,1216 @@
 const crypto = require("crypto");
+const mongoose = require("mongoose");
 
 const razorpay = require("../config/razorpay");
+
 const Order = require("../models/order");
 const Cart = require("../models/cart");
 const Product = require("../models/Product");
 const Users = require("../models/users");
+
 const {
-  createOrder: createShiprocketOrder,
+    createOrder: createShiprocketOrder,
 } = require("../services/shiprocket.service");
 
 const getUserId = (req) => req.user?._id || req.user?.id;
 
-const safeEqual = (first, second) => {
-  if (!first || !second || first.length !== second.length) {
-    return false;
-  }
+const safeEqual = (a, b) => {
 
-  return crypto.timingSafeEqual(
-    Buffer.from(first, "utf8"),
-    Buffer.from(second, "utf8")
-  );
+    if (!a || !b) return false;
+
+    if (a.length !== b.length) return false;
+
+    return crypto.timingSafeEqual(
+        Buffer.from(a),
+        Buffer.from(b)
+    );
+
 };
 
-const buildShiprocketPayload = (order, user) => {
-  const address = order.shippingAddress;
+function generateOrderNumber() {
 
-  // Shiprocket expects one package's dimensions.
-  // For multiple products, use the largest dimensions and
-  // total packed weight as a practical starting point.
-  const totalWeight = order.items.reduce((total, item) => {
-    const weight = Number(item.shipping?.weight) || 0.5;
-    return total + weight * item.quantity;
-  }, 0);
+    const random = Math.floor(
+        100000 + Math.random() * 900000
+    );
 
-  const length = Math.max(
-    ...order.items.map(
-      (item) => Number(item.shipping?.length) || 15
-    )
-  );
+    return `MSK-${new Date().getFullYear()}-${random}`;
 
-  const breadth = Math.max(
-    ...order.items.map(
-      (item) => Number(item.shipping?.breadth) || 12
-    )
-  );
+}
 
-  const height = Math.max(
-    ...order.items.map(
-      (item) => Number(item.shipping?.height) || 6
-    )
-  );
+function generateReceipt(userId) {
 
-  return {
-    order_id: order.orderNumber,
+    return `MIA-${Date.now()}-${String(userId).slice(-6)}`;
 
-    order_date: new Date(order.createdAt)
-      .toISOString()
-      .slice(0, 16)
-      .replace("T", " "),
+}
 
-    pickup_location:
-      process.env.SHIPROCKET_PICKUP_LOCATION,
+function buildShiprocketPayload(order, user) {
 
-    billing_customer_name:
-      address.firstName,
+    const address = order.shippingAddress;
 
-    billing_last_name:
-      address.lastName || "",
+    const totalWeight = order.items.reduce(
+        (sum, item) =>
+            sum +
+            (
+                (Number(item.shipping?.weight) || 0.5)
+                * item.quantity
+            ),
+        0
+    );
 
-    billing_address:
-      address.address,
+    const length = Math.max(
+        ...order.items.map(
+            item =>
+                Number(item.shipping?.length) || 15
+        )
+    );
 
-    billing_city:
-      address.city,
+    const breadth = Math.max(
+        ...order.items.map(
+            item =>
+                Number(item.shipping?.breadth) || 12
+        )
+    );
 
-    billing_pincode:
-      String(address.pinCode),
+    const height = Math.max(
+        ...order.items.map(
+            item =>
+                Number(item.shipping?.height) || 6
+        )
+    );
 
-    billing_state:
-      address.state,
+    return {
 
-    billing_country:
-      address.country || "India",
+        order_id: order.orderNumber,
 
-    billing_email:
-      user.email,
+        order_date: new Date(order.createdAt)
+            .toISOString()
+            .slice(0, 16)
+            .replace("T", " "),
 
-    billing_phone:
-      address.mobile,
+        pickup_location:
+            process.env.SHIPROCKET_PICKUP_LOCATION,
 
-    shipping_is_billing: true,
+        billing_customer_name:
+            address.firstName,
 
-    order_items: order.items.map((item) => ({
-      name: item.title,
+        billing_last_name:
+            address.lastName || "",
 
-      sku:
-        item.sku ||
-        String(item.product),
+        billing_address:
+            address.address,
 
-      units: item.quantity,
+        billing_city:
+            address.city,
 
-      selling_price: Number(item.price),
+        billing_state:
+            address.state,
 
-      discount: 0,
+        billing_country:
+            address.country || "India",
 
-      tax: Number(item.gst) || 0,
+        billing_pincode:
+            String(address.pinCode),
 
-      hsn: "",
-    })),
+        billing_email:
+            user.email,
 
-    payment_method: "Prepaid",
+        billing_phone:
+            address.mobile,
 
-    shipping_charges:
-      Number(order.shippingCharge) || 0,
+        shipping_is_billing:
+            order.sameAsBilling ?? true,
 
-    giftwrap_charges: 0,
+        order_items: order.items.map(item => ({
 
-    transaction_charges: 0,
+            name: item.title,
 
-    total_discount:
-      Number(order.discount) || 0,
+            sku:
+                item.sku ||
+                String(item.product),
 
-    sub_total:
-      Number(order.subtotal) || Number(order.amount),
+            units:
+                item.quantity,
 
-    length,
+            selling_price:
+                Number(item.price),
 
-    breadth,
+            discount: 0,
 
-    height,
+            tax:
+                Number(item.gst),
 
-    weight: Math.max(totalWeight, 0.5),
-  };
-};
+            hsn: "",
+
+        })),
+
+        payment_method:
+
+            order.paymentMethod === "COD"
+                ? "COD"
+                : "Prepaid",
+
+        shipping_charges:
+            Number(order.shippingCharge) || 0,
+
+        transaction_charges: 0,
+
+        giftwrap_charges: 0,
+
+        total_discount:
+            Number(order.discount) || 0,
+
+        sub_total:
+            Number(order.subtotal),
+
+        length,
+
+        breadth,
+
+        height,
+
+        weight:
+            Math.max(totalWeight, 0.5),
+
+    };
+
+}
 
 // ==============================
 // CREATE ORDER
 // ==============================
 exports.createOrder = async (req, res) => {
-  try {
-    if (!razorpay || !process.env.RAZORPAY_KEY_ID) {
-      return res.status(500).json({
-        success: false,
-        message: "Razorpay is not configured",
-      });
-    }
 
-    const userId = getUserId(req);
+    try {
 
-    if (!userId) {
-      return res.status(401).json({
-        success: false,
-        message: "Please log in first",
-      });
-    }
+        if (!razorpay || !process.env.RAZORPAY_KEY_ID) {
 
-    const { shippingAddress } = req.body;
+            throw new Error(
+                "Razorpay is not configured."
+            );
 
-    if (!shippingAddress?.firstName || !shippingAddress?.mobile) {
-      return res.status(400).json({
-        success: false,
-        message: "Shipping address is required",
-      });
-    }
+        }
 
-    const cartItems = await Cart.find({
-      user_id: String(userId),
-    }).lean();
+        const userId = getUserId(req);
 
-    if (!cartItems.length) {
-      return res.status(400).json({
-        success: false,
-        message: "Cart is empty",
-      });
-    }
+        if (!userId) {
 
-    // ----------------------------------
-    // Fetch all products in one query
-    // ----------------------------------
+            return res.status(401).json({
 
-    const productIds = cartItems.map((item) => item.product_id);
+                success: false,
 
-    const products = await Product.find({
-      _id: {
-        $in: productIds,
-      },
-    })
-      .select("title images sku shipping productWeight")
-      .lean();
+                message: "Please login first.",
 
-    const productMap = new Map(
-      products.map((product) => [
-        String(product._id),
-        product,
-      ])
-    );
+            });
 
-    let subtotal = 0;
-    let gstTotal = 0;
+        }
 
-    const items = [];
+        const {
 
-    for (const item of cartItems) {
-      const product = productMap.get(
-        String(item.product_id)
-      );
+            shippingAddress,
 
-      if (!product) {
-        return res.status(400).json({
-          success: false,
-          message:
-            "A product in your cart no longer exists.",
+            billingAddress,
+
+        } = req.body;
+
+        if (
+            !shippingAddress ||
+            !shippingAddress.firstName ||
+            !shippingAddress.mobile
+        ) {
+
+            return res.status(400).json({
+
+                success: false,
+
+                message: "Shipping address is required.",
+
+            });
+
+        }
+
+        const user = await Users.findById(userId)
+            .select("firstName lastName email mobile")
+            .lean();
+
+        if (!user) {
+
+            return res.status(404).json({
+
+                success: false,
+
+                message: "User not found.",
+
+            });
+
+        }
+
+        const cartItems = await Cart.find({
+            user_id: String(userId),
         });
-      }
 
-      const quantity =
-        Math.max(1, Number(item.quantity) || 1);
+        if (!cartItems.length) {
 
-      const price =
-        Number(item.salePrice) || 0;
+            return res.status(400).json({
 
-      const gst =
-        Number(item.gst) || 0;
+                success: false,
 
-      const itemSubtotal =
-        price * quantity;
+                message: "Cart is empty.",
 
-      const itemGST =
-        gst * quantity;
+            });
 
-      const itemTotal =
-        itemSubtotal + itemGST;
+        }
 
-      subtotal += itemSubtotal;
-      gstTotal += Math.round(itemGST);
+        const productIds = cartItems.map(
+            item => item.product_id
+        );
 
-      items.push({
-        product: item.product_id,
+        const products = await Product.find({
+            _id: { $in: productIds },
+        }).lean();
 
-        title:
-          item.title ||
-          product.title ||
-          "Product",
+        const productMap = new Map(
+            products.map(product => [
+                String(product._id),
+                product,
+            ])
+        );
 
-        sku:
-          product.sku || "",
+        let subtotal = 0;
+        let gstTotal = 0;
 
-        image:
-          item.image ||
-          product.images?.[0] ||
-          "",
+        const items = [];
 
-        quantity,
+        for (const cartItem of cartItems) {
 
-        price,
+            const product =
+                productMap.get(
+                    String(cartItem.product_id)
+                );
 
-        gst,
+            if (!product) {
 
-        total: itemTotal,
+                throw new Error(
+                    "Product no longer exists."
+                );
 
-        shipping: {
-          weight:
-            Number(product.shipping?.weight) || 0.5,
+            }
 
-          length:
-            Number(product.shipping?.length) || 15,
+            const quantity =
+                Math.max(
+                    1,
+                    Number(cartItem.quantity)
+                );
 
-          breadth:
-            Number(product.shipping?.breadth) || 12,
+            /* =====================================
+               STOCK VALIDATION
+            ===================================== */
 
-          height:
-            Number(product.shipping?.height) || 6,
-        },
-      });
+            if (
+                product.stock < quantity
+            ) {
+
+                throw new Error(
+                    `${product.title} is out of stock.`
+                );
+
+            }
+
+            const price =
+                Number(cartItem.salePrice);
+
+            const gst =
+                Number(cartItem.gst);
+
+            const itemSubtotal =
+                price * quantity;
+
+            const itemGST =
+                gst * quantity;
+
+            subtotal += itemSubtotal;
+            gstTotal += itemGST;
+
+            items.push({
+
+                product:
+                    cartItem.product_id,
+
+                title:
+                    cartItem.title ||
+                    product.title,
+
+                sku:
+                    product.sku || "",
+
+                image:
+                    cartItem.image ||
+                    product.images?.[0] ||
+                    "",
+
+                quantity,
+
+                price,
+
+                gst,
+
+                total:
+                    itemSubtotal +
+                    itemGST,
+
+                shipping: {
+
+                    weight:
+                        Number(product.shipping?.weight) ||
+                        0.5,
+
+                    length:
+                        Number(product.shipping?.length) ||
+                        15,
+
+                    breadth:
+                        Number(product.shipping?.breadth) ||
+                        12,
+
+                    height:
+                        Number(product.shipping?.height) ||
+                        6,
+
+                },
+
+            });
+
+        }
+
+        const amount =
+            Math.round(
+                subtotal + gstTotal
+            );
+
+        if (amount <= 0) {
+
+            throw new Error(
+                "Invalid order amount."
+            );
+
+        }
+
+        const receipt =
+            generateReceipt(userId);
+
+        const razorpayOrder =
+            await razorpay.orders.create({
+
+                amount:
+                    amount * 100,
+
+                currency:
+                    "INR",
+
+                receipt,
+
+            });
+        console.log("User: ",user)
+        
+
+        const order =
+            await Order.create({
+
+                orderNumber:
+                    generateOrderNumber(),
+
+                user:
+                    userId,
+
+                customerName:
+                    `${user.firstName} ${user.lastName}`,
+
+                customerEmail:
+                    user.email,
+
+                customerPhone:
+                    user.mobile,
+
+                items,
+
+                billingAddress,
+
+                shippingAddress,
+
+                subtotal,
+
+                gstTotal,
+
+                amount,
+
+                receipt,
+
+                razorpayOrderId:
+                    razorpayOrder.id,
+
+                paymentStatus:
+                    "PENDING",
+
+                orderStatus:
+                    "PLACED",
+
+                tracking: [
+
+                    {
+
+                        status:
+                            "Order Placed",
+
+                        code:
+                            "PLACED",
+
+                        location:
+                            "Online Store",
+
+                        message:
+                            "Your order has been placed successfully.",
+
+                    },
+
+                ],
+
+            });
+
+        return res.status(201).json({
+
+            success: true,
+
+            key:
+                process.env.RAZORPAY_KEY_ID,
+
+            orderId:
+                razorpayOrder.id,
+
+            dbOrderId:
+                order._id,
+
+            amount:
+                razorpayOrder.amount,
+
+            currency:
+                razorpayOrder.currency,
+
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        return res.status(500).json({
+
+            success: false,
+
+            message:
+                error.message ||
+                "Unable to create order",
+
+        });
+
     }
 
-    const amount = Math.round(subtotal + gstTotal);
-
-    if (amount <= 0) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid cart amount",
-      });
-    }
-
-    const receipt = `receipt_${Date.now()}_${String(
-      userId
-    ).slice(-6)}`;
-
-    const razorpayOrder =
-      await razorpay.orders.create({
-        amount: Math.round(amount * 100),
-        currency: "INR",
-        receipt,
-      });
-    
-    const orderNumber = `MIA${Date.now()}`;
-
-    const order = await Order.create({
-    orderNumber,
-
-    user: userId,
-
-    items,
-
-    shippingAddress,
-
-    subtotal,
-
-    gstTotal,
-
-    amount,
-
-    currency: "INR",
-
-    receipt,
-
-    razorpayOrderId: razorpayOrder.id,
-
-    paymentStatus: "PENDING",
-
-    orderStatus: "PLACED",
-
-    tracking: [
-        {
-        status: "Order Placed",
-        location: "Online Store",
-        message: "Your order has been placed successfully.",
-        },
-    ],
-    });
-
-    return res.status(201).json({
-      success: true,
-
-      orderId: razorpayOrder.id,
-
-      amount: razorpayOrder.amount,
-
-      currency:
-        razorpayOrder.currency,
-
-      key: process.env.RAZORPAY_KEY_ID,
-
-      dbOrderId: order._id,
-    });
-  } catch (error) {
-    console.error(
-      "Create order error:",
-      error
-    );
-
-    return res.status(500).json({
-      success: false,
-      message: "Unable to create order",
-    });
-  }
 };
-
 // ==============================
 // VERIFY PAYMENT
 // ==============================
 exports.verifyPayment = async (req, res) => {
-  try {
-    if (!process.env.RAZORPAY_KEY_SECRET) {
-      return res.status(500).json({
-        success: false,
-        message: "Razorpay is not configured",
-      });
-    }
-
-    const userId = getUserId(req);
-
-    if (!userId) {
-      return res.status(401).json({
-        success: false,
-        message: "Please log in first",
-      });
-    }
-
-    const {
-      razorpay_order_id,
-      razorpay_payment_id,
-      razorpay_signature,
-      dbOrderId,
-    } = req.body;
-
-    if (
-      !razorpay_order_id ||
-      !razorpay_payment_id ||
-      !razorpay_signature ||
-      !dbOrderId
-    ) {
-      return res.status(400).json({
-        success: false,
-        message: "Missing payment details",
-      });
-    }
-
-    const order = await Order.findById(dbOrderId);
-
-    if (!order) {
-      return res.status(404).json({
-        success: false,
-        message: "Order not found",
-      });
-    }
-
-    if (String(order.user) !== String(userId)) {
-      return res.status(403).json({
-        success: false,
-        message: "Unauthorized",
-      });
-    }
-
-    if (order.razorpayOrderId !== razorpay_order_id) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid Razorpay order",
-      });
-    }
-
-    /* ==========================================
-       ALREADY VERIFIED
-    ========================================== */
-
-    if (order.paymentStatus === "SUCCESS") {
-      return res.status(200).json({
-        success: true,
-        message: "Payment already verified",
-        order,
-      });
-    }
-
-    /* ==========================================
-       VERIFY RAZORPAY SIGNATURE
-    ========================================== */
-
-    const generatedSignature = crypto
-      .createHmac(
-        "sha256",
-        process.env.RAZORPAY_KEY_SECRET
-      )
-      .update(
-        `${razorpay_order_id}|${razorpay_payment_id}`
-      )
-      .digest("hex");
-
-    if (
-      !safeEqual(
-        generatedSignature,
-        razorpay_signature
-      )
-    ) {
-      return res.status(400).json({
-        success: false,
-        message: "Payment verification failed",
-      });
-    }
-
-    /* ==========================================
-       PAYMENT SUCCESS
-    ========================================== */
-
-    order.paymentStatus = "SUCCESS";
-    order.orderStatus = "CONFIRMED";
-
-    order.razorpayPaymentId =
-      razorpay_payment_id;
-
-    order.razorpaySignature =
-      razorpay_signature;
-
-    order.paidAt = new Date();
-
-    const hasPaymentSuccess =
-      order.tracking.some(
-        (item) =>
-          item.status === "Payment Successful"
-      );
-
-    if (!hasPaymentSuccess) {
-      order.tracking.push({
-        status: "Payment Successful",
-        code: "PAYMENT_SUCCESS",
-        location: "Online Payment",
-        message:
-          "Payment received successfully.",
-      });
-
-      order.tracking.push({
-        status: "Order Confirmed",
-        code: "CONFIRMED",
-        location: "MIASHKA",
-        message:
-          "Your order has been confirmed.",
-      });
-    }
-
-    // Save payment FIRST.
-    // Shiprocket failure must never undo payment success.
-    await order.save();
-
-    /* ==========================================
-       UPDATE STOCK
-    ========================================== */
-
-    if (order.items.length) {
-      await Product.bulkWrite(
-        order.items.map((item) => ({
-          updateOne: {
-            filter: {
-              _id: item.product,
-            },
-
-            update: {
-              $inc: {
-                stock: -item.quantity,
-              },
-            },
-          },
-        }))
-      );
-    }
-
-    /* ==========================================
-       CLEAR CART
-    ========================================== */
-
-    await Cart.deleteMany({
-      user_id: String(order.user),
-    });
-
-    /* ==========================================
-       CREATE SHIPROCKET ORDER
-    ========================================== */
-
-    let shiprocketCreated = false;
-    let shiprocketError = null;
 
     try {
-      if (
-        !process.env.SHIPROCKET_EMAIL ||
-        !process.env.SHIPROCKET_PASSWORD ||
-        !process.env.SHIPROCKET_PICKUP_LOCATION
-      ) {
-        throw new Error(
-          "Shiprocket environment variables are missing"
-        );
-      }
 
-      /*
-       * Prevent duplicate Shiprocket orders.
-       *
-       * This is important because the frontend could
-       * potentially call payment verification more than once.
-       */
-      if (!order.shiprocket?.orderId) {
-        const user = await Users.findById(
-          order.user
-        )
-          .select("email")
-          .lean();
+        const userId = getUserId(req);
 
-        if (!user?.email) {
-          throw new Error(
-            "Customer email is missing"
-          );
+        if (!userId) {
+
+            return res.status(401).json({
+                success: false,
+                message: "Please login first.",
+            });
+
         }
 
-        const shiprocketPayload =
-          buildShiprocketPayload(
-            order,
-            user
-          );
+        const {
 
-        console.log(
-          "Creating Shiprocket order:",
-          order.orderNumber
-        );
+            razorpay_order_id,
+            razorpay_payment_id,
+            razorpay_signature,
+            dbOrderId,
 
-        const shiprocketResponse =
-          await createShiprocketOrder(
-            shiprocketPayload
-          );
+        } = req.body;
 
-        console.log(
-          "Shiprocket response:",
-          shiprocketResponse
-        );
+        if (
 
-        /*
-         * Shiprocket create-order responses normally
-         * contain order_id and shipment_id.
-         */
+            !razorpay_order_id ||
+            !razorpay_payment_id ||
+            !razorpay_signature ||
+            !dbOrderId
 
-        if (!shiprocketResponse?.order_id) {
-          throw new Error(
-            shiprocketResponse?.message ||
-              "Shiprocket order was not created"
-          );
+        ) {
+
+            return res.status(400).json({
+
+                success: false,
+                message: "Payment information missing.",
+
+            });
+
         }
 
-        order.shiprocket.orderId =
-          String(
-            shiprocketResponse.order_id
-          );
+        const order = await Order.findById(dbOrderId);
 
-        order.shiprocket.shipmentId =
-          shiprocketResponse.shipment_id
-            ? String(
-                shiprocketResponse.shipment_id
-              )
-            : null;
+        if (!order) {
 
-        order.shiprocket.currentStatus =
-          "Order Created";
+            return res.status(404).json({
 
-        order.shiprocket.lastSyncedAt =
-          new Date();
+                success: false,
+                message: "Order not found.",
+
+            });
+
+        }
+
+        if (String(order.user) !== String(userId)) {
+
+            return res.status(403).json({
+
+                success: false,
+                message: "Unauthorized.",
+
+            });
+
+        }
+
+        if (order.paymentStatus === "SUCCESS") {
+
+            return res.status(200).json({
+
+                success: true,
+
+                message: "Payment already verified.",
+
+                order,
+
+            });
+
+        }
+
+        const generatedSignature = crypto
+            .createHmac(
+                "sha256",
+                process.env.RAZORPAY_KEY_SECRET
+            )
+            .update(
+                `${razorpay_order_id}|${razorpay_payment_id}`
+            )
+            .digest("hex");
+
+        if (
+
+            !safeEqual(
+                generatedSignature,
+                razorpay_signature
+            )
+
+        ) {
+
+            return res.status(400).json({
+
+                success: false,
+                message:
+                    "Invalid payment signature.",
+
+            });
+
+        }
+
+        /* =====================================
+            PAYMENT SUCCESS
+        ===================================== */
+
+        order.paymentStatus = "SUCCESS";
+
+        order.orderStatus = "CONFIRMED";
+
+        order.razorpayPaymentId =
+            razorpay_payment_id;
+
+        order.razorpaySignature =
+            razorpay_signature;
+
+        order.paidAt = new Date();
 
         order.tracking.push({
-          status: "Shipment Created",
-          code: "SHIPMENT_CREATED",
-          location: "MIASHKA",
-          message:
-            "Your shipment has been created and is being prepared for dispatch.",
+
+            status:
+                "Payment Successful",
+
+            code:
+                "PAYMENT_SUCCESS",
+
+            location:
+                "Razorpay",
+
+            message:
+                "Payment received successfully.",
+
+        });
+
+        order.tracking.push({
+
+            status:
+                "Order Confirmed",
+
+            code:
+                "CONFIRMED",
+
+            location:
+                "MIASHKA",
+
+            message:
+                "Your order has been confirmed.",
+
         });
 
         await order.save();
 
-        shiprocketCreated = true;
+        /* =====================================
+            UPDATE STOCK
+        ===================================== */
 
-        console.log(
-          "Shiprocket order created:",
-          order.shiprocket.orderId
+        for (const item of order.items) {
+
+            const updated =
+                await Product.findOneAndUpdate(
+
+                    {
+
+                        _id:
+                            item.product,
+
+                        stock: {
+
+                            $gte:
+                                item.quantity,
+
+                        },
+
+                    },
+
+                    {
+
+                        $inc: {
+
+                            stock:
+                                -item.quantity,
+
+                        },
+
+                    }
+
+                );
+
+            if (!updated) {
+
+                throw new Error(
+
+                    `${item.title} is out of stock.`
+
+                );
+
+            }
+
+        }
+
+        /* =====================================
+            CLEAR CART
+        ===================================== */
+
+        await Cart.deleteMany({
+
+            user_id: String(order.user),
+
+        });
+
+        /* =====================================
+            CREATE SHIPROCKET ORDER
+        ===================================== */
+
+        let shiprocketCreated = false;
+        let shiprocketError = null;
+
+        try {
+
+            if (!order.shiprocket?.orderId) {
+
+                const user = await Users.findById(order.user)
+                    .select("email")
+                    .lean();
+
+                const payload =
+                    buildShiprocketPayload(
+                        order,
+                        user
+                    );
+
+                const response =
+                    await createShiprocketOrder(
+                        payload
+                    );
+
+                if (!response?.order_id) {
+
+                    throw new Error(
+                        response?.message ||
+                        "Shiprocket order creation failed."
+                    );
+
+                }
+
+                order.shiprocket.orderId =
+                    String(response.order_id);
+
+                order.shiprocket.shipmentId =
+                    response.shipment_id
+                        ? String(response.shipment_id)
+                        : null;
+
+                order.shiprocket.currentStatus =
+                    "Order Created";
+
+                order.shiprocket.lastSyncedAt =
+                    new Date();
+
+                order.tracking.push({
+
+                    status:
+                        "Shipment Created",
+
+                    code:
+                        "SHIPMENT_CREATED",
+
+                    location:
+                        "MIASHKA",
+
+                    message:
+                        "Shipment has been created successfully.",
+
+                });
+
+                await order.save();
+
+                shiprocketCreated = true;
+
+            } else {
+
+                shiprocketCreated = true;
+
+            }
+
+        } catch (err) {
+
+            console.error(
+                "Shiprocket Error:",
+                err.response?.data ||
+                err.message
+            );
+
+            shiprocketError =
+                err.response?.data?.message ||
+                err.message;
+
+        }
+
+        /* =====================================
+            RESPONSE
+        ===================================== */
+
+        return res.status(200).json({
+
+            success: true,
+
+            message:
+                "Payment verified successfully.",
+
+            order,
+
+            shipping: {
+
+                created:
+                    shiprocketCreated,
+
+                orderId:
+                    order.shiprocket?.orderId,
+
+                shipmentId:
+                    order.shiprocket?.shipmentId,
+
+                error:
+                    shiprocketError,
+
+            },
+
+        });
+
+    } catch (error) {
+
+        console.error(
+            "Verify Payment Error:",
+            error
         );
-      } else {
-        shiprocketCreated = true;
 
-        console.log(
-          "Shiprocket order already exists:",
-          order.shiprocket.orderId
-        );
-      }
-    } catch (shiprocketErr) {
-      shiprocketError =
-        shiprocketErr.response?.data?.message ||
-        shiprocketErr.response?.data?.errors ||
-        shiprocketErr.message ||
-        "Unable to create Shiprocket order";
+        return res.status(500).json({
 
-      console.error(
-        "Shiprocket creation failed:",
-        shiprocketErr.response?.data ||
-          shiprocketErr.message
-      );
+            success: false,
 
-      /*
-       * IMPORTANT:
-       *
-       * Do NOT:
-       *
-       * order.paymentStatus = "FAILED"
-       *
-       * Razorpay payment has already succeeded.
-       */
+            message:
+                error.message ||
+                "Unable to verify payment.",
+
+        });
+
     }
 
-    /* ==========================================
-       RESPONSE
-    ========================================== */
-
-    return res.status(200).json({
-      success: true,
-
-      message: "Payment successful",
-
-      order,
-
-      shipping: {
-        shiprocketCreated,
-
-        orderId:
-          order.shiprocket?.orderId ||
-          null,
-
-        shipmentId:
-          order.shiprocket?.shipmentId ||
-          null,
-
-        error:
-          shiprocketError,
-      },
-    });
-  } catch (error) {
-    console.error(
-      "Verify payment error:",
-      error
-    );
-
-    return res.status(500).json({
-      success: false,
-      message: "Unable to verify payment",
-    });
-  }
 };
 
 // ==============================
 // PAYMENT FAILED
 // ==============================
 exports.paymentFailed = async (req, res) => {
-  try {
-    const userId = getUserId(req);
-    const { dbOrderId } = req.body;
 
-    if (!dbOrderId) {
-      return res.status(400).json({
-        success: false,
-        message: "Order ID is required",
-      });
-    }
+    try {
 
-    const order = await Order.findById(dbOrderId);
+        const userId = getUserId(req);
 
-    if (!order) {
-      return res.status(404).json({
-        success: false,
-        message: "Order not found",
-      });
-    }
+        const { dbOrderId } = req.body;
 
-    if (String(order.user) !== String(userId)) {
-      return res.status(403).json({
-        success: false,
-        message: "Unauthorized",
-      });
-    }
+        if (!dbOrderId) {
 
-    // Don't overwrite successful payment
-    if (order.paymentStatus === "PENDING") {
+            return res.status(400).json({
+
+                success: false,
+                message: "Order ID is required.",
+
+            });
+
+        }
+
+        const order = await Order.findById(dbOrderId);
+
+        if (!order) {
+
+            return res.status(404).json({
+
+                success: false,
+                message: "Order not found.",
+
+            });
+
+        }
+
+        if (String(order.user) !== String(userId)) {
+
+            return res.status(403).json({
+
+                success: false,
+                message: "Unauthorized.",
+
+            });
+
+        }
+
+        if (order.paymentStatus === "SUCCESS") {
+
+            return res.status(400).json({
+
+                success: false,
+                message: "Payment already completed.",
+
+            });
+
+        }
 
         order.paymentStatus = "FAILED";
 
         order.orderStatus = "CANCELLED";
 
-        order.tracking.push({
+        order.cancelledAt = new Date();
+
+        order.addTracking({
+
             status: "Payment Failed",
-            location: "Online Payment",
-            message: "Payment could not be completed."
+
+            code: "PAYMENT_FAILED",
+
+            location: "Razorpay",
+
+            message: "Payment could not be completed.",
+
         });
 
         await order.save();
+
+        return res.status(200).json({
+
+            success: true,
+
+            message: "Payment marked as failed.",
+
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        return res.status(500).json({
+
+            success: false,
+
+            message: "Unable to update payment.",
+
+        });
+
     }
 
-    return res.status(200).json({
-      success: true,
-      message: "Payment marked as failed",
-    });
-  } catch (error) {
-    console.error("Payment failed:", error);
-
-    return res.status(500).json({
-      success: false,
-      message: "Unable to update payment status",
-    });
-  }
 };
+
+// ==============================
+// RAZORPAY WEBHOOK
+// ==============================
 
 exports.razorpayWebhook = async (req, res) => {
-  try {
-    console.log("Webhook received");
 
-    return res.status(200).json({
-      success: true,
-    });
-  } catch (err) {
-    console.error(err);
+    try {
 
-    return res.status(500).json({
-      success: false,
-    });
-  }
+        const signature =
+            req.headers["x-razorpay-signature"];
+
+        const body =
+            JSON.stringify(req.body);
+
+        const expectedSignature = crypto
+
+            .createHmac(
+
+                "sha256",
+
+                process.env.RAZORPAY_WEBHOOK_SECRET
+
+            )
+
+            .update(body)
+
+            .digest("hex");
+
+        if (
+
+            !safeEqual(
+
+                expectedSignature,
+
+                signature
+
+            )
+
+        ) {
+
+            return res.status(400).json({
+
+                success: false,
+
+                message: "Invalid webhook signature.",
+
+            });
+
+        }
+
+        const event = req.body.event;
+
+        /* ======================================
+           PAYMENT CAPTURED
+        ====================================== */
+
+        if (event === "payment.captured") {
+
+            const payment =
+                req.body.payload.payment.entity;
+
+            const order =
+                await Order.findOne({
+
+                    razorpayOrderId:
+                        payment.order_id,
+
+                });
+
+            if (order) {
+
+                if (
+
+                    order.paymentStatus !==
+                    "SUCCESS"
+
+                ) {
+
+                    order.paymentStatus =
+                        "SUCCESS";
+
+                    order.orderStatus =
+                        "CONFIRMED";
+
+                    order.razorpayPaymentId =
+                        payment.id;
+
+                    order.paidAt =
+                        new Date();
+
+                    order.addTracking({
+
+                        status:
+                            "Payment Successful",
+
+                        code:
+                            "PAYMENT_SUCCESS",
+
+                        location:
+                            "Razorpay",
+
+                        message:
+                            "Payment confirmed via webhook.",
+
+                    });
+
+                    await order.save();
+
+                }
+
+            }
+
+        }
+
+        /* ======================================
+           PAYMENT FAILED
+        ====================================== */
+
+        if (event === "payment.failed") {
+
+            const payment =
+                req.body.payload.payment.entity;
+
+            const order =
+                await Order.findOne({
+
+                    razorpayOrderId:
+                        payment.order_id,
+
+                });
+
+            if (
+
+                order &&
+                order.paymentStatus ===
+                    "PENDING"
+
+            ) {
+
+                order.paymentStatus =
+                    "FAILED";
+
+                order.orderStatus =
+                    "CANCELLED";
+
+                order.addTracking({
+
+                    status:
+                        "Payment Failed",
+
+                    code:
+                        "PAYMENT_FAILED",
+
+                    location:
+                        "Razorpay",
+
+                    message:
+                        payment.error_description ||
+                        "Payment failed.",
+
+                });
+
+                await order.save();
+
+            }
+
+        }
+
+        /* ======================================
+           REFUND
+        ====================================== */
+
+        if (event === "refund.processed") {
+
+            const refund =
+                req.body.payload.refund.entity;
+
+            const order =
+                await Order.findOne({
+
+                    razorpayPaymentId:
+                        refund.payment_id,
+
+                });
+
+            if (order) {
+
+                order.paymentStatus =
+                    "REFUNDED";
+
+                order.addTracking({
+
+                    status:
+                        "Refund Processed",
+
+                    code:
+                        "REFUNDED",
+
+                    location:
+                        "Razorpay",
+
+                    message:
+                        "Refund has been processed.",
+
+                });
+
+                await order.save();
+
+            }
+
+        }
+
+        return res.status(200).json({
+
+            success: true,
+
+        });
+
+    } catch (error) {
+
+        console.error(
+
+            "Webhook Error:",
+
+            error
+
+        );
+
+        return res.status(500).json({
+
+            success: false,
+
+        });
+
+    }
+
 };
+
 exports.buildShiprocketPayload = buildShiprocketPayload;

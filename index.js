@@ -17,6 +17,7 @@ const paymentRoutes = require("./routes/payment.route");
 const orderRoutes = require("./routes/order.route");
 const adminShippingRoutes = require("./routes/adminShipping.route");
 const adminOrderRoutes = require("./routes/adminOrder.route");
+const adminRoutes = require('./routes/admin.route');
 
 const path = require('path');
 const { checkForAuthenticationCookie } = require('./middlewares/authentication');
@@ -57,6 +58,8 @@ app.use('/collection', collectionRoute);
 app.use('/metal', metalRoute);
 app.use('/cart', cartRoute)
 app.use('/user', userRoute);
+app.use('/admin', adminRoutes);
+
 app.use("/payment", paymentRoutes);
 
 app.use("/admin/orders", adminOrderRoutes);

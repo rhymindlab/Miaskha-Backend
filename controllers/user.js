@@ -1,7 +1,65 @@
 const {v4: uuidv4} = require('uuid');
 const Users = require('../models/users');
 
-async function handleSignUp(req, res){
+
+function generateUsername(firstName, lastName) {
+    const random = Math.floor(1000 + Math.random() * 9000);
+
+    return `${firstName}${lastName}${random}`
+        .toLowerCase()
+        .replace(/\s+/g, "");
+}
+
+async function handleUserSignUp(req, res) {
+    try {
+        const { firstName, lastName, password, email} = req.body;
+
+        let userName;
+
+        do {
+            userName = generateUsername(firstName, lastName);
+        } while (await Users.exists({ userName }));
+
+        await Users.create({
+            firstName,
+            lastName,
+            userName,
+            password,
+            email,
+            role: "USER",
+        });
+
+        // Login immediately after signup
+        const { token, role: userRole } =
+            await Users.matchPasswordAndGenerateToken(email, password);
+
+        return res
+            .cookie("token", token, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite:
+                    process.env.NODE_ENV === "production"
+                        ? "none"
+                        : "lax",
+            })
+            .status(201)
+            .json({
+                success: true,
+                message: "Sign Up Success",
+                role: userRole,
+                userName,
+            });
+
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({
+            success: false,
+            message: "Server Error",
+        });
+    }
+}
+
+async function handleAddAdmin(req, res){
     try {
         const {userName, password, email, role} = req.body;
         await Users.create({
@@ -10,7 +68,23 @@ async function handleSignUp(req, res){
             email,
             role,
         });
-        return res.json("SingUp Success");
+        return res.status(200).send('New Admin has Been Added');
+    } catch (err) {
+        console.error(err);
+        return res.status(500).send('Server error');
+    }
+};
+
+async function handleSignUp(req, res){
+    try {
+        const {userName, password, email, role} = req.body;
+        await Users.create({
+            userName,
+            password,   
+            email,
+            role,
+        });
+        return res.render("login")
     } catch (err) {
         console.error(err);
         return res.status(500).send('Server error');
@@ -72,11 +146,20 @@ async function handleDetailChange(req, res) {
 
         // Billing Address
         if (req.body.billingAddress) {
-            if (Array.isArray(req.body.billingAddress)) {
-                updateData.billingAddress = req.body.billingAddress;
-            } else {
-                updateData.billingAddress = [req.body.billingAddress];
-            }
+            updateData.billingAddress = req.body.billingAddress;
+        }
+
+        // Shipping Address
+        if (req.body.sameAsBilling !== undefined) {
+            updateData.sameAsBilling = req.body.sameAsBilling;
+        }
+
+        if (req.body.sameAsBilling === true && req.body.billingAddress) {
+            updateData.shippingAddress = req.body.billingAddress;
+        }
+
+        if (req.body.sameAsBilling === false && req.body.shippingAddress) {
+            updateData.shippingAddress = req.body.shippingAddress;
         }
 
         const updatedUser = await Users.findByIdAndUpdate(
@@ -111,7 +194,8 @@ async function handleDetailChange(req, res) {
 }
 
 module.exports = {
-    handleSignUp,
+    handleUserSignUp,
     handleLogin,
     handleDetailChange,
+    handleSignUp,
 }

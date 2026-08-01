@@ -17,7 +17,7 @@ router.get('/addcollection', restrictToLoggedinUserOnly, restrictToAdminOnly, ha
 
 router.get("/profile", restrictToLoggedinUserOnly, async (req, res) => {
   try {
-      const user = await Users.findById(req.user._id).select("-password");
+      const user = await Users.findById(req.user._id).select("-password -salt -role  ");
       
       if (!user) {
           return res.status(404).json({

@@ -354,6 +354,30 @@ const orderSchema = new mongoose.Schema(
       type: shippingAddressSchema,
       required: true,
     },
+    billingAddress: {
+      type: shippingAddressSchema,
+      default: null,
+    },
+
+    sameAsBilling: {
+      type: Boolean,
+      default: true,
+    },
+
+    customerName: {
+      type: String,
+      default: "",
+    },
+
+    customerEmail: {
+      type: String,
+      default: "",
+    },
+
+    customerPhone: {
+      type: String,
+      default: "",
+    },
 
     subtotal: {
       type: Number,

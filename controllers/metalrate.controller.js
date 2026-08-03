@@ -1,55 +1,184 @@
-const SimplePrice =
-  require("../models/metalrate");
+const SimplePrice = require("../models/metalrate");
 
-async function handleMetalDetailAddition(
-  req,
-  res
-) {
+/* ===============================
+   Get All Metal Rates (API)
+=============================== */
 
-  try {
+async function handleGetMetal(req, res) {
 
-    console.log(req.body);
+    try {
 
-    await SimplePrice.insertMany(
-      req.body
-    );
+        const metals = await SimplePrice
+            .find()
+            .sort({ metalType: 1, purity: 1 })
+            .lean();
 
-    return res.json({
+        return res.json(metals);
 
-      success: true,
+    } catch (error) {
 
-      message:
-        "Metal rates added"
+        console.error(error);
 
-    });
+        return res.status(500).send(error.message);
 
-  } catch(error) {
-
-    console.log(error);
-
-    return res.status(500).json({
-
-      success: false,
-
-      error: error.message
-
-    });
-
-  }
+    }
 
 }
 
-async function handleGetMetal(req, res) {
-    try{
-        const allMetalsData = await SimplePrice.find().select("metalType purity amount currency").lean();
-        return res.json(allMetalsData);
-    }catch(error){
-        console.log(error)
-        return res.status(500).json({ success: false, error: error.message });
+
+/* ===============================
+   Get Single Metal Rate (API)
+=============================== */
+
+async function handleGetSingleMetal(req, res) {
+
+    try {
+
+        const metal = await SimplePrice.findById(req.params.id).lean();
+
+        if (!metal) {
+
+            return res.status(404).send("Metal rate not found");
+
+        }
+
+        return res.json(metal);
+
+    } catch (error) {
+
+        console.error(error);
+
+        return res.status(500).send(error.message);
+
     }
+
+}
+
+
+/* ===============================
+   Create Metal Rate
+=============================== */
+
+async function handleMetalDetailAddition(req, res) {
+
+    try {
+
+        const {
+            metalType,
+            purity,
+            amount,
+            currency,
+        } = req.body;
+
+        await SimplePrice.create({
+
+            metalType,
+            purity,
+            amount,
+            currency,
+
+        });
+
+        return res.redirect("/admin/metals");
+
+    } catch (error) {
+
+        console.error(error);
+
+        return res.status(500).send(error.message);
+
+    }
+
+}
+
+
+/* ===============================
+   Update Metal Rate
+=============================== */
+
+async function handleUpdateMetal(req, res) {
+
+    try {
+
+        const {
+            metalType,
+            purity,
+            amount,
+            currency,
+        } = req.body;
+
+        const metal = await SimplePrice.findByIdAndUpdate(
+
+            req.params.id,
+
+            {
+                metalType,
+                purity,
+                amount,
+                currency,
+            },
+
+            {
+                new: true,
+                runValidators: true,
+            }
+
+        );
+
+        if (!metal) {
+
+            return res.status(404).send("Metal rate not found");
+
+        }
+
+        return res.redirect("/admin/metals");
+
+    } catch (error) {
+
+        console.error(error);
+
+        return res.status(500).send(error.message);
+
+    }
+
+}
+
+
+/* ===============================
+   Delete Metal Rate
+=============================== */
+
+async function handleDeleteMetal(req, res) {
+
+    try {
+
+        const metal = await SimplePrice.findByIdAndDelete(req.params.id);
+
+        if (!metal) {
+
+            return res.status(404).send("Metal rate not found");
+
+        }
+
+        return res.redirect("/admin/metals");
+
+    } catch (error) {
+
+        console.error(error);
+
+        return res.status(500).send(error.message);
+
+    }
+
 }
 
 module.exports = {
-  handleMetalDetailAddition,
-  handleGetMetal,
+
+    handleGetMetal,
+    handleGetSingleMetal,
+
+    handleMetalDetailAddition,
+    handleUpdateMetal,
+    handleDeleteMetal,
+
 };

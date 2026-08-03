@@ -3,6 +3,7 @@ const express = require("express");
 const {
     getAllOrders,
     getOrderDetails,
+    updateOrderStatus,
 } = require("../controllers/adminOrderController");
 
 const {
@@ -22,6 +23,7 @@ router.get(
     restrictToAdminOnly,
     getAllOrders
 );
+router.put("/:id/status", restrictToAdminOnly, updateOrderStatus);
 
 
 // Single order

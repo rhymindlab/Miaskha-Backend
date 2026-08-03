@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<%- include("../../partials/head") %>
+
+<body>
+
+<div class="admin-wrapper">
+
+    <!-- Sidebar -->
+    <%- include("../../partials/sidebar") %>
+
+    <!-- Main -->
+    <main class="admin-main">
+
+        <!-- Header -->
+        <%- include("../../partials/header") %>
+
+        <!-- Page Content -->
+        <section class="admin-content">
+
+            <div class="container-fluid">
+
+                <!-- Page Header -->
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+
+                    <div>
+
+                        <h2 class="fw-bold mb-1">
+                            Add Category
+                        </h2>
+
+                        <p class="text-muted mb-0">
+                            Create a new product category.
+                        </p>
+
+                    </div>
+
+                    <a
+                        href="/admin/category"
+                        class="btn btn-light border rounded-3 px-4">
+
+                        <i class="bi bi-arrow-left me-2"></i>
+
+                        Back
+
+                    </a>
+
+                </div>
+
+                <form
+                    action="/category"
+                    method="POST"
+                >
+
+                    <div class="row g-4">
+
+                        <!-- Left -->
+
+                        <div class="col-lg-8">
+
+                            <div class="card shadow-sm border-0 rounded-4">
+
+                                <div class="card-body p-4">
+
+                                    <h5 class="fw-bold mb-4">
+
+                                        Category Information
+
+                                    </h5>
+
+                                    <!-- Name -->
+
+                                    <div class="mb-4">
+
+                                        <label class="form-label fw-semibold">
+
+                                            Category Name
+
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            class="form-control form-control-lg"
+                                            name="name"
+                                            placeholder="Enter category name"
+                                            required
+                                        >
+
+                                    </div>
+
+                                    <!-- Slug -->
+
+                                    <div class="mb-4">
+
+                                        <label class="form-label fw-semibold">
+
+                                            Slug
+
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            class="form-control"
+                                            name="slug"
+                                            placeholder="Leave empty for automatic slug"
+                                        >
+
+                                    </div>
+
+                                    <!-- Image -->
+
+                                    <div class="mb-4">
+
+                                        <label class="form-label fw-semibold">
+
+                                            Category Image
+
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            class="form-control"
+                                            name="image"
+                                            placeholder="Paste image URL"
+                                        >
+
+                                    </div>
+
+                                    <!-- Parent -->
+
+                                    <div class="mb-0">
+
+                                        <label class="form-label fw-semibold">
+
+                                            Parent Category
+
+                                        </label>
+
+                                        <select
+                                            class="form-select"
+                                            name="category"
+                                        >
+
+                                            <option value="">
+                                                None
+                                            </option>
+
+                                            <% categories.forEach(category=>{ %>
+
+                                                <option value="<%= category._id %>">
+
+                                                    <%= category.name %>
+
+                                                </option>
+
+                                            <% }) %>
+
+                                        </select>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <!-- Right -->
+
+                        <div class="col-lg-4">
+
+                            <div class="card shadow-sm border-0 rounded-4">
+
+                                <div class="card-body p-4">
+
+                                    <h5 class="fw-bold mb-4">
+
+                                        Collections
+
+                                    </h5>
+                                                                        <% if(collections.length > 0){ %>
+
+                                        <% collections.forEach(collection => { %>
+
+                                            <div class="form-check mb-3">
+
+                                                <input
+                                                    class="form-check-input"
+                                                    type="checkbox"
+                                                    name="collections"
+                                                    value="<%= collection.slug %>"
+                                                    id="collection-<%= collection._id %>"
+                                                >
+
+                                                <label
+                                                    class="form-check-label"
+                                                    for="collection-<%= collection._id %>"
+                                                >
+
+                                                    <%= collection.name %>
+
+                                                </label>
+
+                                            </div>
+
+                                        <% }) %>
+
+                                    <% } else { %>
+
+                                        <div
+                                            class="text-center py-4 text-muted"
+                                        >
+
+                                            <i class="bi bi-collection fs-1 d-block mb-2"></i>
+
+                                            No collections available.
+
+                                        </div>
+
+                                    <% } %>
+
+                                </div>
+
+                            </div>
+
+                            <!-- Publish Card -->
+
+                            <div class="card shadow-sm border-0 rounded-4 mt-4">
+
+                                <div class="card-body p-4">
+
+                                    <h5 class="fw-bold mb-3">
+
+                                        Publish
+
+                                    </h5>
+
+                                    <p class="text-muted small">
+
+                                        Review the information before creating
+                                        the category.
+
+                                    </p>
+
+                                    <div class="d-grid gap-2">
+
+                                        <button
+                                            type="submit"
+                                            class="btn btn-success btn-lg"
+                                        >
+
+                                            <i class="bi bi-check-circle me-2"></i>
+
+                                            Create Category
+
+                                        </button>
+
+                                        <a
+                                            href="/admin/category"
+                                            class="btn btn-outline-secondary"
+                                        >
+
+                                            Cancel
+
+                                        </a>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </section>
+
+        <!-- Footer -->
+
+        <%- include("../../partials/footer") %>
+
+    </main>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+
+const nameInput = document.querySelector("input[name='name']");
+const slugInput = document.querySelector("input[name='slug']");
+
+nameInput.addEventListener("keyup", () => {
+
+    if (slugInput.value.trim() !== "") return;
+
+    slugInput.placeholder = nameInput.value
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "");
+
+});
+
+</script>
+
+</body>
+
+</html>

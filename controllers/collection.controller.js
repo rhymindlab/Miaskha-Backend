@@ -11,20 +11,96 @@ async function listCollections(req, res) {
 }
 
 async function createCollection(req, res) {
-  try {
-    const { name, slug, image } = req.body;
-    if (!name || String(name).trim() === '') {
-      return res.status(400).json({ error: 'Name is required' });
+
+    try {
+
+        let {
+            name,
+            slug,
+            image,
+        } = req.body;
+
+        if (!slug || !slug.trim()) {
+
+            slug = name
+                .toLowerCase()
+                .trim()
+                .replace(/[^a-z0-9]+/g, "-")
+                .replace(/^-|-$/g, "");
+
+        }
+
+        const collection = await Collection.create({
+
+            name,
+            slug,
+            image,
+
+        });
+
+        return res.redirect("/admin/collection");
+
+    } catch (error) {
+
+        console.error(error);
+
+        return res.status(500).send(error.message);
+
     }
-    const collection = await Collection.create({ name, slug, image });
-    return res.status(201).json(collection);
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: 'Server error' });
-  }
+
+}
+
+async function updateCollection(req, res) {
+
+    try {
+
+        let {
+            name,
+            slug,
+            image,
+        } = req.body;
+
+        if (!slug || !slug.trim()) {
+
+            slug = name
+                .toLowerCase()
+                .trim()
+                .replace(/[^a-z0-9]+/g, "-")
+                .replace(/^-|-$/g, "");
+
+        }
+
+        await Collection.findByIdAndUpdate(
+
+            req.params.id,
+
+            {
+                name,
+                slug,
+                image,
+            },
+
+            {
+                new: true,
+                runValidators: true,
+            }
+
+        );
+
+        return res.redirect("/admin/collection");
+
+    } catch (error) {
+
+        console.error(error);
+
+        return res.status(500).send(error.message);
+
+    }
+
 }
 
 module.exports = {
   listCollections,
   createCollection,
+  updateCollection,
 };

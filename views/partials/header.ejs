@@ -1,0 +1,109 @@
+<header class="topbar">
+
+    <!-- Left -->
+    <div class="topbar-left">
+
+        <button class="btn btn-light d-lg-none" id="sidebarToggle">
+            <i class="bi bi-list fs-4"></i>
+        </button>
+
+        <div>
+
+            <h4 class="page-title mb-0">
+                <%= pageTitle || "Dashboard" %>
+            </h4>
+
+            <small class="text-muted">
+                Welcome back, Admin 👋
+            </small>
+
+        </div>
+
+    </div>
+
+    <!-- Right -->
+    <div class="topbar-right">
+
+        <!-- Search -->
+        <div class="search-box d-none d-md-flex">
+
+            <i class="bi bi-search"></i>
+
+            <input
+                type="text"
+                class="form-control border-0 shadow-none"
+                placeholder="Search..."
+            >
+
+        </div>
+
+        <!-- Notification -->
+        <button class="btn btn-light position-relative">
+
+            <i class="bi bi-bell fs-5"></i>
+
+            <span class="notification-dot"></span>
+
+        </button>
+
+        <!-- Profile -->
+        <div class="dropdown">
+
+            <button
+                class="btn btn-light dropdown-toggle d-flex align-items-center gap-2"
+                data-bs-toggle="dropdown"
+            >
+
+                <img
+                    src="https://i.pravatar.cc/40"
+                    class="rounded-circle"
+                    width="40"
+                    height="40"
+                >
+
+                <div class="text-start d-none d-md-block">
+
+                    <div class="fw-semibold">
+                        Admin
+                    </div>
+
+                    <small class="text-muted">
+                        Administrator
+                    </small>
+
+                </div>
+
+            </button>
+
+            <ul class="dropdown-menu dropdown-menu-end">
+
+                <li>
+                    <a class="dropdown-item" href="#">
+                        <i class="bi bi-person me-2"></i>
+                        Profile
+                    </a>
+                </li>
+
+                <li>
+                    <a class="dropdown-item" href="#">
+                        <i class="bi bi-gear me-2"></i>
+                        Settings
+                    </a>
+                </li>
+
+                <li><hr class="dropdown-divider"></li>
+
+                <li>
+                    <a class="dropdown-item text-danger" href="/logout">
+                        <i class="bi bi-box-arrow-right me-2"></i>
+                        Logout
+                    </a>
+                </li>
+
+            </ul>
+
+        </div>
+
+    </div>
+
+</header>

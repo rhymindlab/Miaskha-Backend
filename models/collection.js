@@ -9,7 +9,7 @@ const collectionSchema = new mongoose.Schema({
     slug: {
         type: String,
         required: true,
-        unquie: true,
+        unique: true,
         lowercase: true,
         trim: true,
     },

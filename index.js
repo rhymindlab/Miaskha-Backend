@@ -18,6 +18,10 @@ const orderRoutes = require("./routes/order.route");
 const adminShippingRoutes = require("./routes/adminShipping.route");
 const adminOrderRoutes = require("./routes/adminOrder.route");
 const adminRoutes = require('./routes/admin.route');
+const adminProductRoutes =require("./routes/adminProduct.route");
+const adminCategoryRoutes =require("./routes/adminCategory.route");
+const adminCollectionRoutes =require("./routes/adminCollection.route");
+const adminMetalRoutes = require("./routes/adminMetal.route");
 
 const path = require('path');
 const { checkForAuthenticationCookie } = require('./middlewares/authentication');
@@ -34,7 +38,7 @@ app.set("views", path.resolve("./views"));
 app.use(express.static("public"));
 
 
-    
+
 app.use(cors({
     origin: [
         "http://localhost:5173",
@@ -52,21 +56,38 @@ app.use(cookieParser());
 app.use(checkForAuthenticationCookie("token"));
 app.use(methodOverride('_method'));
 
-app.use('/product', productroute);
-app.use('/category', categoryRoute);
-app.use('/collection', collectionRoute);
-app.use('/metal', metalRoute);
-app.use('/cart', cartRoute)
-app.use('/user', userRoute);
-app.use('/admin', adminRoutes);
+/* ==============================
+   Public API Routes
+============================== */
 
+app.use("/product", productroute);
+app.use("/category", categoryRoute);
+app.use("/collection", collectionRoute);
+app.use("/metal", metalRoute);
+app.use("/cart", cartRoute);
+app.use("/user", userRoute);
 app.use("/payment", paymentRoutes);
+app.use("/order", orderRoutes);
+
+/* ==============================
+   Admin Panel Routes
+============================== */
+
+app.use("/admin", adminRoutes);
+
+app.use("/admin/products", adminProductRoutes);
+app.use("/admin/category", adminCategoryRoutes);
+app.use("/admin/collection", adminCollectionRoutes);
+app.use("/admin/metals", adminMetalRoutes);
 
 app.use("/admin/orders", adminOrderRoutes);
 app.use("/admin/shipping", adminShippingRoutes);
 
-app.use("/order", orderRoutes);
-app.use('/', staticRoute);
+/* ==============================
+   Static Routes
+============================== */
+
+app.use("/", staticRoute);
 
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {

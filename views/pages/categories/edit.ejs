@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<%- include("../../partials/head") %>
+
+<body>
+
+<div class="admin-wrapper">
+
+    <!-- Sidebar -->
+    <%- include("../../partials/sidebar") %>
+
+    <!-- Main -->
+    <main class="admin-main">
+
+        <!-- Header -->
+        <%- include("../../partials/header") %>
+
+        <!-- Page Content -->
+        <section class="admin-content">
+
+            <div class="container-fluid">
+
+                <!-- Page Header -->
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+
+                    <div>
+
+                        <h2 class="fw-bold mb-1">
+
+                            Edit Category
+
+                        </h2>
+
+                        <p class="text-muted mb-0">
+
+                            Update category information.
+
+                        </p>
+
+                    </div>
+
+                    <a
+                        href="/admin/category"
+                        class="btn btn-light border rounded-3 px-4"
+                    >
+
+                        <i class="bi bi-arrow-left me-2"></i>
+
+                        Back
+
+                    </a>
+
+                </div>
+
+                <form
+                    action="/category/<%= category._id %>?_method=PUT"
+                    method="POST"
+                >
+
+                    <div class="row g-4">
+
+                        <!-- Left Side -->
+
+                        <div class="col-lg-8">
+
+                            <div class="card border-0 shadow-sm rounded-4">
+
+                                <div class="card-body p-4">
+
+                                    <h5 class="fw-bold mb-4">
+
+                                        Category Information
+
+                                    </h5>
+
+                                    <!-- Name -->
+
+                                    <div class="mb-4">
+
+                                        <label class="form-label fw-semibold">
+
+                                            Category Name
+
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            name="name"
+                                            class="form-control form-control-lg"
+                                            value="<%= category.name %>"
+                                            required
+                                        >
+
+                                    </div>
+
+                                    <!-- Slug -->
+
+                                    <div class="mb-4">
+
+                                        <label class="form-label fw-semibold">
+
+                                            Slug
+
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            name="slug"
+                                            class="form-control"
+                                            value="<%= category.slug %>"
+                                        >
+
+                                    </div>
+
+                                    <!-- Image -->
+
+                                    <div class="mb-4">
+
+                                        <label class="form-label fw-semibold">
+
+                                            Image URL
+
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            name="image"
+                                            class="form-control"
+                                            value="<%= category.image %>"
+                                        >
+
+                                    </div>
+
+                                    <!-- Parent Category -->
+
+                                    <div class="mb-0">
+
+                                        <label class="form-label fw-semibold">
+
+                                            Parent Category
+
+                                        </label>
+
+                                        <select
+                                            name="category"
+                                            class="form-select"
+                                        >
+
+                                            <option value="">
+                                                None
+                                            </option>
+
+                                            <% categories.forEach(parent=>{ %>
+
+                                                <option
+                                                    value="<%= parent._id %>"
+
+                                                    <%= category.parentCategory &&
+                                                        category.parentCategory.toString() === parent._id.toString()
+                                                        ? "selected"
+                                                        : "" %>
+                                                >
+
+                                                    <%= parent.name %>
+
+                                                </option>
+
+                                            <% }) %>
+
+                                        </select>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <!-- Right Side -->
+
+                        <div class="col-lg-4">
+
+                            <div class="card border-0 shadow-sm rounded-4">
+
+                                <div class="card-body p-4">
+
+                                    <h5 class="fw-bold mb-4">
+
+                                        Collections
+
+                                    </h5>
+                                    <% if(collections.length > 0){ %>
+
+                                        <% collections.forEach(collection => { %>
+
+                                            <div class="form-check mb-3">
+
+                                                <input
+                                                    class="form-check-input"
+                                                    type="checkbox"
+                                                    name="collections"
+                                                    value="<%= collection.slug %>"
+                                                    id="collection-<%= collection._id %>"
+
+                                                    <%= category.collections &&
+                                                        category.collections.includes(collection.slug)
+                                                        ? "checked"
+                                                        : "" %>
+                                                >
+
+                                                <label
+                                                    class="form-check-label"
+                                                    for="collection-<%= collection._id %>"
+                                                >
+
+                                                    <%= collection.name %>
+
+                                                </label>
+
+                                            </div>
+
+                                        <% }) %>
+
+                                    <% } else { %>
+
+                                        <div class="text-center py-4">
+
+                                            <i class="bi bi-collection fs-1 text-muted"></i>
+
+                                            <p class="text-muted mt-2 mb-0">
+
+                                                No collections available.
+
+                                            </p>
+
+                                        </div>
+
+                                    <% } %>
+
+                                </div>
+
+                            </div>
+
+                            <!-- Actions -->
+
+                            <div class="card shadow-sm border-0 rounded-4 mt-4">
+
+                                <div class="card-body">
+
+                                    <div class="d-grid gap-2">
+
+                                        <button
+                                            type="submit"
+                                            class="btn btn-warning btn-lg text-white"
+                                        >
+
+                                            <i class="bi bi-pencil-square me-2"></i>
+
+                                            Update Category
+
+                                        </button>
+
+                                        <a
+                                            href="/admin/category"
+                                            class="btn btn-outline-secondary"
+                                        >
+
+                                            Cancel
+
+                                        </a>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </section>
+
+        <!-- Footer -->
+
+        <%- include("../../partials/footer") %>
+
+    </main>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+
+const nameInput = document.querySelector("input[name='name']");
+const slugInput = document.querySelector("input[name='slug']");
+
+nameInput.addEventListener("keyup", () => {
+
+    if (slugInput.dataset.edited === "true") return;
+
+    slugInput.value = nameInput.value
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "");
+
+});
+
+slugInput.addEventListener("input", () => {
+
+    slugInput.dataset.edited = "true";
+
+});
+
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,1341 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<%- include("../../partials/head", {
+    title: "Dashboard"
+}) %>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+<body>
+
+<div class="admin-wrapper">
+
+    <!-- =========================
+         Sidebar
+    ========================== -->
+
+    <%- include("../../partials/sidebar") %>
+
+    <!-- =========================
+         Main Content
+    ========================== -->
+
+    <div class="admin-main">
+
+        <!-- =========================
+             Header
+        ========================== -->
+
+        <%- include("../../partials/header", {
+            pageTitle: "Dashboard"
+        }) %>
+
+        <!-- =========================
+             Dashboard Content
+        ========================== -->
+
+        <div class="admin-content">
+
+            <!-- =========================
+                 Hero Section
+            ========================== -->
+
+            <div class="dashboard-header">
+
+                <div>
+
+                    <span class="text-success fw-semibold">
+                        ADMIN PANEL
+                    </span>
+
+                    <h1 class="dashboard-title mt-2">
+                        Welcome Back 👋
+                    </h1>
+
+                    <p class="dashboard-subtitle">
+
+                        Here's a quick overview of your
+                        products, orders, customers and
+                        inventory.
+
+                    </p>
+
+                </div>
+
+                <div class="d-flex gap-3">
+
+                    <a
+                        href="admin/products"
+                        class="btn btn-success px-4"
+                    >
+
+                        <i class="bi bi-plus-circle me-2"></i>
+
+                        Add Product
+
+                    </a>
+
+                    <a
+                        href="/admin/orders"
+                        class="btn btn-outline-dark px-4"
+                    >
+
+                        <i class="bi bi-bag-check me-2"></i>
+
+                        Orders
+
+                    </a>
+
+                </div>
+
+            </div>
+
+            <!-- ===================================
+                 Statistics Cards
+                 PART 2 STARTS FROM HERE
+            =================================== -->
+
+            <div class="row g-4">
+
+                <!-- ===================================
+     Statistics Cards
+=================================== -->
+
+<!-- Total Products -->
+
+<div class="col-12 col-sm-6 col-xl-3">
+
+    <div class="stat-card primary">
+
+        <div class="stat-icon">
+
+            <i class="bi bi-box-seam"></i>
+
+        </div>
+
+        <div class="stat-info">
+
+            <span>Total Products</span>
+
+            <h3><%= stats.totalProducts %></h3>
+
+            <small>Products Available</small>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Total Orders -->
+
+<div class="col-12 col-sm-6 col-xl-3">
+
+    <div class="stat-card blue">
+
+        <div class="stat-icon">
+
+            <i class="bi bi-bag-check"></i>
+
+        </div>
+
+        <div class="stat-info">
+
+            <span>Total Orders</span>
+
+            <h3><%= stats.totalOrders %></h3>
+
+            <small>Orders Received</small>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Customers -->
+
+<div class="col-12 col-sm-6 col-xl-3">
+
+    <div class="stat-card orange">
+
+        <div class="stat-icon">
+
+            <i class="bi bi-people"></i>
+
+        </div>
+
+        <div class="stat-info">
+
+            <span>Customers</span>
+
+            <h3><%= stats.totalCustomers %></h3>
+
+            <small>Registered Users</small>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Revenue -->
+
+<div class="col-12 col-sm-6 col-xl-3">
+
+    <div class="stat-card green">
+
+        <div class="stat-icon">
+
+            <i class="bi bi-currency-rupee"></i>
+
+        </div>
+
+        <div class="stat-info">
+
+            <span>Total Revenue</span>
+
+            <h3>
+
+                ₹ <%= Number(stats.totalRevenue || 0).toLocaleString("en-IN") %>
+
+            </h3>
+
+            <small>Successful Payments</small>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Categories -->
+
+<div class="col-12 col-sm-6 col-xl-3">
+
+    <div class="stat-card purple">
+
+        <div class="stat-icon">
+
+            <i class="bi bi-tags"></i>
+
+        </div>
+
+        <div class="stat-info">
+
+            <span>Categories</span>
+
+            <h3><%= stats.totalCategories %></h3>
+
+            <small>Available Categories</small>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Collections -->
+
+<div class="col-12 col-sm-6 col-xl-3">
+
+    <div class="stat-card pink">
+
+        <div class="stat-icon">
+
+            <i class="bi bi-collection"></i>
+
+        </div>
+
+        <div class="stat-info">
+
+            <span>Collections</span>
+
+            <h3><%= stats.totalCollections %></h3>
+
+            <small>Product Collections</small>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Pending Orders -->
+
+<div class="col-12 col-sm-6 col-xl-3">
+
+    <div class="stat-card warning">
+
+        <div class="stat-icon">
+
+            <i class="bi bi-clock-history"></i>
+
+        </div>
+
+        <div class="stat-info">
+
+            <span>Pending Orders</span>
+
+            <h3><%= stats.pendingOrders %></h3>
+
+            <small>Need Processing</small>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Low Stock -->
+
+<div class="col-12 col-sm-6 col-xl-3">
+
+    <div class="stat-card danger">
+
+        <div class="stat-icon">
+
+            <i class="bi bi-exclamation-triangle"></i>
+
+        </div>
+
+        <div class="stat-info">
+
+            <span>Low Stock</span>
+
+            <h3><%= stats.lowStockProducts %></h3>
+
+            <small>Requires Attention</small>
+
+        </div>
+
+    </div>
+
+</div>
+
+</div>
+
+<!-- ===================================
+     PART 3 STARTS HERE
+=================================== -->
+
+<div class="row mt-4 g-4">
+    <!-- ===================================
+     Sales Overview
+=================================== -->
+
+<div class="col-lg-8">
+
+    <div class="table-card h-100">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+
+            <div>
+
+                <h4 class="mb-1">
+                    Sales Overview
+                </h4>
+
+                <small class="text-muted">
+                    Monthly Revenue Analytics
+                </small>
+
+            </div>
+
+            <span class="badge bg-success">
+                This Year
+            </span>
+
+        </div>
+
+        <div class="chart-container">
+            <canvas id="salesChart"></canvas>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ===================================
+     Quick Actions
+=================================== -->
+
+<div class="col-lg-4">
+
+    <div class="table-card h-100">
+
+        <h4 class="mb-4">
+
+            Quick Actions
+
+        </h4>
+
+        <div class="d-grid gap-3">
+
+            <a
+                href="admin/products/add"
+                class="btn btn-success"
+            >
+
+                <i class="bi bi-plus-circle me-2"></i>
+
+                Add Product
+
+            </a>
+
+            <a
+                href="/addcategory"
+                class="btn btn-outline-primary"
+            >
+
+                <i class="bi bi-tags me-2"></i>
+
+                Add Category
+
+            </a>
+
+            <a
+                href="/addcollection"
+                class="btn btn-outline-warning"
+            >
+
+                <i class="bi bi-collection me-2"></i>
+
+                Add Collection
+
+            </a>
+
+            <a
+                href="/admin/orders"
+                class="btn btn-outline-dark"
+            >
+
+                <i class="bi bi-bag-check me-2"></i>
+
+                Manage Orders
+
+            </a>
+
+            <a
+                href="/metal"
+                class="btn btn-outline-success"
+            >
+
+                <i class="bi bi-currency-rupee me-2"></i>
+
+                Metal Rates
+
+            </a>
+
+        </div>
+
+        <hr class="my-4">
+
+        <div>
+
+            <h6 class="text-muted mb-3">
+
+                Store Status
+
+            </h6>
+
+            <div class="d-flex justify-content-between mb-3">
+
+                <span>
+
+                    Products
+
+                </span>
+
+                <strong>
+
+                    <%= stats.totalProducts %>
+
+                </strong>
+
+            </div>
+
+            <div class="d-flex justify-content-between mb-3">
+
+                <span>
+
+                    Orders
+
+                </span>
+
+                <strong>
+
+                    <%= stats.totalOrders %>
+
+                </strong>
+
+            </div>
+
+            <div class="d-flex justify-content-between">
+
+                <span>
+
+                    Customers
+
+                </span>
+
+                <strong>
+
+                    <%= stats.totalCustomers %>
+
+                </strong>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+</div>
+
+<!-- ===================================
+     PART 4 STARTS HERE
+=================================== -->
+
+<div class="row mt-4 g-4">
+    <!-- =========================================================
+     Recent Orders
+========================================================= -->
+
+<div class="col-lg-8">
+
+    <div class="table-card">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+
+            <div>
+
+                <h4 class="mb-1">
+
+                    Recent Orders
+
+                </h4>
+
+                <small class="text-muted">
+
+                    Latest customer orders
+
+                </small>
+
+            </div>
+
+            <a
+                href="/admin/orders"
+                class="btn btn-outline-success btn-sm"
+            >
+
+                View All
+
+            </a>
+
+        </div>
+
+        <div class="table-responsive">
+
+            <table class="table table-hover align-middle">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Order</th>
+
+                        <th>Customer</th>
+
+                        <th>Amount</th>
+
+                        <th>Payment</th>
+
+                        <th>Status</th>
+
+                        <th>Date</th>
+
+                        <th></th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    <% if(recentOrders.length){ %>
+
+                        <% recentOrders.forEach(order=>{ %>
+
+                        <tr>
+
+                            <td>
+
+                                <strong>
+
+                                    <%= order.orderNumber %>
+
+                                </strong>
+
+                            </td>
+
+                            <td>
+
+                                <div>
+
+                                    <strong>
+
+                                        <%= order.customerName || "Customer" %>
+
+                                    </strong>
+
+                                    <br>
+
+                                    <small class="text-muted">
+
+                                        <%= order.customerEmail || "" %>
+
+                                    </small>
+
+                                </div>
+
+                            </td>
+
+                            <td>
+
+                                <strong>
+
+                                    ₹ <%= Number(order.amount).toLocaleString("en-IN") %>
+
+                                </strong>
+
+                            </td>
+
+                            <td>
+
+                                <% if(order.paymentStatus==="SUCCESS"){ %>
+
+                                    <span class="badge bg-success">
+
+                                        Paid
+
+                                    </span>
+
+                                <% }else if(order.paymentStatus==="PENDING"){ %>
+
+                                    <span class="badge bg-warning text-dark">
+
+                                        Pending
+
+                                    </span>
+
+                                <% }else{ %>
+
+                                    <span class="badge bg-danger">
+
+                                        Failed
+
+                                    </span>
+
+                                <% } %>
+
+                            </td>
+
+                            <td>
+
+                                <% if(order.orderStatus==="DELIVERED"){ %>
+
+                                    <span class="badge bg-success">
+
+                                        Delivered
+
+                                    </span>
+
+                                <% }else if(order.orderStatus==="SHIPPED"){ %>
+
+                                    <span class="badge bg-primary">
+
+                                        Shipped
+
+                                    </span>
+
+                                <% }else if(order.orderStatus==="PACKED"){ %>
+
+                                    <span class="badge bg-info text-dark">
+
+                                        Packed
+
+                                    </span>
+
+                                <% }else if(order.orderStatus==="CONFIRMED"){ %>
+
+                                    <span class="badge bg-secondary">
+
+                                        Confirmed
+
+                                    </span>
+
+                                <% }else if(order.orderStatus==="PLACED"){ %>
+
+                                    <span class="badge bg-warning text-dark">
+
+                                        Placed
+
+                                    </span>
+
+                                <% }else{ %>
+
+                                    <span class="badge bg-danger">
+
+                                        <%= order.orderStatus %>
+
+                                    </span>
+
+                                <% } %>
+
+                            </td>
+
+                            <td>
+
+                                <small>
+
+                                    <%= new Date(order.createdAt).toLocaleDateString("en-IN") %>
+
+                                </small>
+
+                            </td>
+
+                            <td>
+
+                                <a
+
+                                    href="/admin/orders/<%= order._id %>"
+
+                                    class="btn btn-sm btn-outline-success"
+
+                                >
+
+                                    View
+
+                                </a>
+
+                            </td>
+
+                        </tr>
+
+                        <% }) %>
+
+                    <% }else{ %>
+
+                        <tr>
+
+                            <td
+                                colspan="7"
+                                class="text-center text-muted py-5"
+                            >
+
+                                No Orders Found
+
+                            </td>
+
+                        </tr>
+
+                    <% } %>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+<!-- =========================================================
+     Order Summary
+========================================================= -->
+
+<div class="col-lg-4">
+
+    <div class="table-card">
+
+        <h4 class="mb-4">
+
+            Order Summary
+
+        </h4>
+
+        <div class="d-flex justify-content-between mb-3">
+
+            <span>
+
+                Total Orders
+
+            </span>
+
+            <strong>
+
+                <%= stats.totalOrders %>
+
+            </strong>
+
+        </div>
+
+        <div class="d-flex justify-content-between mb-3">
+
+            <span>
+
+                Pending
+
+            </span>
+
+            <strong class="text-warning">
+
+                <%= stats.pendingOrders %>
+
+            </strong>
+
+        </div>
+
+        <div class="d-flex justify-content-between mb-3">
+
+            <span>
+
+                Delivered
+
+            </span>
+
+            <strong class="text-success">
+
+                <%= stats.deliveredOrders %>
+
+            </strong>
+
+        </div>
+
+        <div class="d-flex justify-content-between">
+
+            <span>
+
+                Revenue
+
+            </span>
+
+            <strong>
+
+                ₹ <%= Number(stats.totalRevenue).toLocaleString("en-IN") %>
+
+            </strong>
+
+        </div>
+
+    </div>
+
+</div>
+
+</div>
+
+<!-- ===================================
+     PART 5 STARTS HERE
+=================================== -->
+
+<div class="row mt-4 g-4">
+
+    <!-- =========================================================
+     Recent Products
+========================================================= -->
+
+<div class="col-lg-8">
+
+    <div class="table-card">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+
+            <div>
+
+                <h4 class="mb-1">
+                    Recent Products
+                </h4>
+
+                <small class="text-muted">
+                    Latest products added
+                </small>
+
+            </div>
+
+            <a
+                href="admin/products/add"
+                class="btn btn-outline-success btn-sm"
+            >
+                Manage Products
+            </a>
+
+        </div>
+
+        <div class="table-responsive">
+
+            <table class="table table-hover align-middle">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Product</th>
+
+                        <th>Price</th>
+
+                        <th>Stock</th>
+
+                        <th>Status</th>
+
+                        <th></th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                <% if(recentProducts.length){ %>
+
+                    <% recentProducts.forEach(product=>{ %>
+
+                    <tr>
+
+                        <td>
+
+                            <strong>
+
+                                <%= product.title %>
+
+                            </strong>
+
+                        </td>
+
+                        <td>
+
+                            ₹ <%= Number(product.salePrice).toLocaleString("en-IN") %>
+
+                        </td>
+
+                        <td>
+
+                            <%= product.stock %>
+
+                        </td>
+
+                        <td>
+
+                            <% if(product.stock>10){ %>
+
+                                <span class="badge bg-success">
+
+                                    In Stock
+
+                                </span>
+
+                            <% }else if(product.stock>0){ %>
+
+                                <span class="badge bg-warning text-dark">
+
+                                    Low Stock
+
+                                </span>
+
+                            <% }else{ %>
+
+                                <span class="badge bg-danger">
+
+                                    Out of Stock
+
+                                </span>
+
+                            <% } %>
+
+                        </td>
+
+                        <td>
+
+                            <a
+                                href="/product/<%= product._id %>"
+                                class="btn btn-sm btn-outline-primary"
+                            >
+
+                                View
+
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                    <% }) %>
+
+                <% }else{ %>
+
+                    <tr>
+
+                        <td
+                            colspan="5"
+                            class="text-center py-5 text-muted"
+                        >
+
+                            No Products Found
+
+                        </td>
+
+                    </tr>
+
+                <% } %>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     Metal Rates
+========================================================= -->
+
+<div class="col-lg-4">
+
+    <div class="table-card">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+
+            <h4 class="mb-0">
+
+                Today's Metal Rates
+
+            </h4>
+
+            <i class="bi bi-currency-rupee fs-4 text-success"></i>
+
+        </div>
+
+        <% allMetalsRates.forEach(rate=>{ %>
+
+        <div class="d-flex justify-content-between align-items-center py-3 border-bottom">
+
+            <div>
+
+                <strong>
+
+                    <%= rate.metalType %>
+
+                </strong>
+
+                <br>
+
+                <small class="text-muted">
+
+                    <%= rate.purity %>
+
+                </small>
+
+            </div>
+
+            <h5 class="mb-0 text-success">
+
+                ₹ <%= Number(rate.amount).toLocaleString("en-IN") %>
+
+            </h5>
+
+        </div>
+
+        <% }) %>
+
+    </div>
+
+</div>
+
+</div>
+
+<!-- ===================================
+     PART 6 STARTS HERE
+=================================== -->
+<!-- =========================================================
+     Recent Activity
+========================================================= -->
+
+<div class="row mt-4">
+
+    <div class="col-12">
+
+        <div class="table-card">
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+
+                <div>
+
+                    <h4 class="mb-1">
+
+                        Dashboard Summary
+
+                    </h4>
+
+                    <small class="text-muted">
+
+                        Current store overview
+
+                    </small>
+
+                </div>
+
+            </div>
+
+            <div class="row text-center">
+
+                <div class="col-md-3">
+
+                    <div class="py-3">
+
+                        <i class="bi bi-box-seam fs-1 text-success"></i>
+
+                        <h5 class="mt-3">
+
+                            <%= stats.totalProducts %>
+
+                        </h5>
+
+                        <small class="text-muted">
+
+                            Products
+
+                        </small>
+
+                    </div>
+
+                </div>
+
+                <div class="col-md-3">
+
+                    <div class="py-3">
+
+                        <i class="bi bi-bag-check fs-1 text-primary"></i>
+
+                        <h5 class="mt-3">
+
+                            <%= stats.totalOrders %>
+
+                        </h5>
+
+                        <small class="text-muted">
+
+                            Orders
+
+                        </small>
+
+                    </div>
+
+                </div>
+
+                <div class="col-md-3">
+
+                    <div class="py-3">
+
+                        <i class="bi bi-people fs-1 text-warning"></i>
+
+                        <h5 class="mt-3">
+
+                            <%= stats.totalCustomers %>
+
+                        </h5>
+
+                        <small class="text-muted">
+
+                            Customers
+
+                        </small>
+
+                    </div>
+
+                </div>
+
+                <div class="col-md-3">
+
+                    <div class="py-3">
+
+                        <i class="bi bi-currency-rupee fs-1 text-danger"></i>
+
+                        <h5 class="mt-3">
+
+                            ₹ <%= Number(stats.totalRevenue).toLocaleString("en-IN") %>
+
+                        </h5>
+
+                        <small class="text-muted">
+
+                            Revenue
+
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- =========================================================
+     Chart JS
+========================================================= -->
+
+
+<script>
+
+const chartCanvas = document.getElementById("salesChart");
+
+if(chartCanvas){
+
+new Chart(chartCanvas,{
+
+type:"line",
+
+data:{
+
+labels:[
+
+"Jan",
+
+"Feb",
+
+"Mar",
+
+"Apr",
+
+"May",
+
+"Jun",
+
+"Jul",
+
+"Aug",
+
+"Sep",
+
+"Oct",
+
+"Nov",
+
+"Dec"
+
+],
+
+datasets:[{
+
+label:"Revenue",
+
+data:[
+
+12000,
+
+18000,
+
+14000,
+
+22000,
+
+28000,
+
+26000,
+
+32000,
+
+35000,
+
+29000,
+
+40000,
+
+45000,
+
+50000
+
+],
+
+borderColor:"#16a34a",
+
+backgroundColor:"rgba(22,163,74,.12)",
+
+fill:true,
+
+borderWidth:3,
+
+tension:.4,
+
+pointRadius:4,
+
+pointBackgroundColor:"#16a34a"
+
+}]
+
+},
+
+options:{
+
+responsive:true,
+
+maintainAspectRatio:false,
+
+plugins:{
+
+legend:{
+
+display:false
+
+}
+
+},
+
+scales:{
+
+x:{
+
+grid:{
+
+display:false
+
+}
+
+},
+
+y:{
+
+beginAtZero:true
+
+}
+
+}
+
+}
+
+});
+
+}
+
+</script>
+
+<script src="/js/dashboard.js"></script>
+
+</body>
+
+</html>

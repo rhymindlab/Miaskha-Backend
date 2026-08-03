@@ -1,0 +1,2035 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<%- include("../../partials/head",{ title:"Edit Product" }) %>
+
+<body>
+
+<div class="admin-wrapper">
+
+    <%- include("../../partials/sidebar") %>
+
+    <main class="admin-main">
+
+        <%- include("../../partials/header",{
+            pageTitle:"Edit Product"
+        }) %>
+
+        <section class="admin-content">
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+
+                <div>
+
+                    <h2 class="fw-bold">
+
+                        Edit Product
+
+                    </h2>
+
+                    <p class="text-muted mb-0">
+
+                        Update product information.
+
+                    </p>
+
+                </div>
+
+                <a
+                    href="/admin/products"
+                    class="btn btn-outline-secondary">
+
+                    <i class="bi bi-arrow-left me-2"></i>
+
+                    Back
+
+                </a>
+
+            </div>
+
+            <form
+                action="/product/<%= product._id %>?_method=PATCH"
+                method="POST"
+                id="productForm">
+
+                <!-- ===================================
+                    BASIC INFORMATION
+                ==================================== -->
+
+                <div class="card shadow-sm border-0 mb-4">
+
+                    <div class="card-header bg-white">
+
+                        <h5 class="mb-0">
+
+                            <i class="bi bi-box me-2 text-success"></i>
+
+                            Basic Information
+
+                        </h5>
+
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="row g-4">
+
+                            <div class="col-lg-6">
+
+                                <label class="form-label">
+
+                                    Product Title
+
+                                </label>
+
+                                <input
+                                    class="form-control"
+                                    type="text"
+                                    name="title"
+                                    value="<%= product.title %>"
+                                    required>
+
+                            </div>
+
+                            <div class="col-lg-6">
+
+                                <label class="form-label">
+
+                                    SKU
+
+                                </label>
+
+                                <input
+                                    class="form-control"
+                                    type="text"
+                                    name="sku"
+                                    value="<%= product.sku %>"
+                                    required>
+
+                            </div>
+
+                            <div class="col-lg-6">
+
+                                <label class="form-label">
+
+                                    Product Type
+
+                                </label>
+
+                                <select
+                                    class="form-select"
+                                    name="productType">
+
+                                    <option value="Ring"
+                                        <%= product.productType==="Ring" ? "selected":"" %>>
+
+                                        Ring
+
+                                    </option>
+
+                                    <option value="Pendant"
+                                        <%= product.productType==="Pendant" ? "selected":"" %>>
+
+                                        Pendant
+
+                                    </option>
+
+                                    <option value="Chain"
+                                        <%= product.productType==="Chain" ? "selected":"" %>>
+
+                                        Chain
+
+                                    </option>
+
+                                    <option value="Bracelet"
+                                        <%= product.productType==="Bracelet" ? "selected":"" %>>
+
+                                        Bracelet
+
+                                    </option>
+
+                                    <option value="Bangle"
+                                        <%= product.productType==="Bangle" ? "selected":"" %>>
+
+                                        Bangle
+
+                                    </option>
+
+                                    <option value="Necklace"
+                                        <%= product.productType==="Necklace" ? "selected":"" %>>
+
+                                        Necklace
+
+                                    </option>
+
+                                    <option value="Earrings"
+                                        <%= product.productType==="Earrings" ? "selected":"" %>>
+
+                                        Earrings
+
+                                    </option>
+
+                                    <option value="Coin"
+                                        <%= product.productType==="Coin" ? "selected":"" %>>
+
+                                        Coin
+
+                                    </option>
+
+                                    <option value="Loose Diamond"
+                                        <%= product.productType==="Loose Diamond" ? "selected":"" %>>
+
+                                        Loose Diamond
+
+                                    </option>
+
+                                    <option value="Gemstone"
+                                        <%= product.productType==="Gemstone" ? "selected":"" %>>
+
+                                        Gemstone
+
+                                    </option>
+
+                                    <option value="Other"
+                                        <%= product.productType==="Other" ? "selected":"" %>>
+
+                                        Other
+
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                            <div class="col-lg-6">
+
+                                <label class="form-label">
+
+                                    Category
+
+                                </label>
+
+                                <select
+                                    class="form-select"
+                                    name="category">
+
+                                    <% categories.forEach(category=>{ %>
+
+                                        <option
+                                            value="<%= category._id %>"
+                                            <%= String(product.category)==String(category._id) ? "selected":"" %>>
+
+                                            <%= category.name %>
+
+                                        </option>
+
+                                    <% }) %>
+
+                                </select>
+
+                            </div>
+
+                            <div class="col-12">
+
+                                <label class="form-label">
+
+                                    Collections
+
+                                </label>
+
+                                <select
+                                    class="form-select"
+                                    multiple
+                                    name="collections">
+
+                                    <% collections.forEach(collection=>{ %>
+
+                                        <option
+                                            value="<%= collection._id %>"
+
+                                            <%= product.collections.some(c=>String(c)==String(collection._id))
+                                                ? "selected"
+                                                : "" %>>
+
+                                            <%= collection.name %>
+
+                                        </option>
+
+                                    <% }) %>
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+<!-- ===================================
+PART 2 STARTS HERE
+==================================== -->
+
+                <!-- ===================================
+    Pricing & Inventory
+=================================== -->
+
+<div class="card shadow-sm border-0 mb-4">
+
+    <div class="card-header bg-white">
+
+        <h5 class="mb-0">
+
+            <i class="bi bi-currency-rupee me-2 text-success"></i>
+
+            Pricing & Inventory
+
+        </h5>
+
+    </div>
+
+    <div class="card-body">
+
+        <div class="row g-4">
+
+            <div class="col-lg-3">
+
+                <label class="form-label">
+
+                    Pricing Mode
+
+                </label>
+
+                <select
+                    class="form-select"
+                    name="pricingMode">
+
+                    <option
+                        value="dynamic"
+                        <%= product.pricingMode==="dynamic" ? "selected":"" %>>
+
+                        Dynamic
+
+                    </option>
+
+                    <option
+                        value="manual"
+                        <%= product.pricingMode==="manual" ? "selected":"" %>>
+
+                        Manual
+
+                    </option>
+
+                    <option
+                        value="fixed"
+                        <%= product.pricingMode==="fixed" ? "selected":"" %>>
+
+                        Fixed
+
+                    </option>
+
+                </select>
+
+            </div>
+
+            <div class="col-lg-3">
+
+                <label class="form-label">
+
+                    Fixed Price
+
+                </label>
+
+                <input
+                    class="form-control"
+                    type="number"
+                    step="0.01"
+                    name="fixedPrice"
+                    value="<%= product.fixedPrice || 0 %>">
+
+            </div>
+
+            <div class="col-lg-3">
+
+                <label class="form-label">
+
+                    MRP
+
+                </label>
+
+                <input
+                    class="form-control"
+                    type="number"
+                    step="0.01"
+                    name="mrp"
+                    value="<%= product.mrp %>">
+
+            </div>
+
+            <div class="col-lg-3">
+
+                <label class="form-label">
+
+                    Sale Price
+
+                </label>
+
+                <input
+                    class="form-control"
+                    type="number"
+                    step="0.01"
+                    name="salePrice"
+                    value="<%= product.salePrice %>">
+
+            </div>
+
+            <div class="col-lg-3">
+
+                <label class="form-label">
+
+                    Stock
+
+                </label>
+
+                <input
+                    class="form-control"
+                    type="number"
+                    name="stock"
+                    value="<%= product.stock %>">
+
+            </div>
+
+            <div class="col-lg-3">
+
+                <label class="form-label">
+
+                    Making Charge Type
+
+                </label>
+
+                <select
+                    class="form-select"
+                    name="makingChargesType">
+
+                    <option
+                        value="fixed"
+                        <%= product.makingChargesType==="fixed" ? "selected":"" %>>
+
+                        Fixed
+
+                    </option>
+
+                    <option
+                        value="perGram"
+                        <%= product.makingChargesType==="perGram" ? "selected":"" %>>
+
+                        Per Gram
+
+                    </option>
+
+                    <option
+                        value="percentage"
+                        <%= product.makingChargesType==="percentage" ? "selected":"" %>>
+
+                        Percentage
+
+                    </option>
+
+                </select>
+
+            </div>
+
+            <div class="col-lg-3">
+
+                <label class="form-label">
+
+                    Making Charge Value
+
+                </label>
+
+                <input
+                    class="form-control"
+                    type="number"
+                    step="0.01"
+                    name="makingChargesValue"
+                    value="<%= product.makingChargesValue || 0 %>">
+
+            </div>
+
+            <div class="col-lg-3">
+
+                <label class="form-label">
+
+                    Pricing Options
+
+                </label>
+
+                <div class="border rounded p-3">
+
+                    <div class="form-check">
+
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            name="dynamicMetal"
+                            <%= product.dynamicMetal ? "checked":"" %>>
+
+                        <label class="form-check-label">
+
+                            Dynamic Metal
+
+                        </label>
+
+                    </div>
+
+                    <div class="form-check">
+
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            name="dynamicStone"
+                            <%= product.dynamicStone ? "checked":"" %>>
+
+                        <label class="form-check-label">
+
+                            Dynamic Stone
+
+                        </label>
+
+                    </div>
+
+                    <div class="form-check">
+
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            name="dynamicMakingCharges"
+                            <%= product.dynamicMakingCharges ? "checked":"" %>>
+
+                        <label class="form-check-label">
+
+                            Dynamic Making Charges
+
+                        </label>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ===================================
+    Metal Information
+=================================== -->
+
+<div class="card shadow-sm border-0 mb-4">
+
+    <div class="card-header bg-white">
+
+        <h5 class="mb-0">
+
+            <i class="bi bi-gem me-2 text-success"></i>
+
+            Metal Information
+
+        </h5>
+
+    </div>
+
+    <div class="card-body">
+
+        <div class="row g-4">
+
+            <div class="col-lg-3">
+
+                <label class="form-label">
+
+                    Metal Type
+
+                </label>
+
+                <select
+                    class="form-select"
+                    name="metalType">
+
+                    <option value="">Select</option>
+
+                    <option
+                        value="Gold"
+                        <%= product.metalType==="Gold" ? "selected":"" %>>
+
+                        Gold
+
+                    </option>
+
+                    <option
+                        value="Silver"
+                        <%= product.metalType==="Silver" ? "selected":"" %>>
+
+                        Silver
+
+                    </option>
+
+                    <option
+                        value="Platinum"
+                        <%= product.metalType==="Platinum" ? "selected":"" %>>
+
+                        Platinum
+
+                    </option>
+
+                </select>
+
+            </div>
+
+            <div class="col-lg-3">
+
+                <label class="form-label">
+
+                    Purity
+
+                </label>
+
+                <select
+                    class="form-select"
+                    name="purity">
+
+                    <option value="">Select</option>
+
+                    <option <%= product.purity==="24K" ? "selected":"" %>>24K</option>
+
+                    <option <%= product.purity==="22K" ? "selected":"" %>>22K</option>
+
+                    <option <%= product.purity==="18K" ? "selected":"" %>>18K</option>
+
+                    <option <%= product.purity==="14K" ? "selected":"" %>>14K</option>
+
+                    <option <%= product.purity==="999" ? "selected":"" %>>999</option>
+
+                    <option <%= product.purity==="925" ? "selected":"" %>>925</option>
+
+                </select>
+
+            </div>
+
+            <div class="col-lg-3">
+
+                <label class="form-label">
+
+                    Metal Weight (gm)
+
+                </label>
+
+                <input
+                    class="form-control"
+                    type="number"
+                    step="0.001"
+                    name="metalWeight"
+                    value="<%= product.metalWeight %>">
+
+            </div>
+
+            <div class="col-lg-3">
+
+                <label class="form-label">
+
+                    Product Weight (gm)
+
+                </label>
+
+                <input
+                    class="form-control"
+                    type="number"
+                    step="0.001"
+                    name="productWeight"
+                    value="<%= product.productWeight %>">
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ===================================
+    Shipping Package
+=================================== -->
+
+<div class="card shadow-sm border-0 mb-4">
+
+    <div class="card-header bg-white">
+
+        <h5 class="mb-0">
+
+            <i class="bi bi-truck me-2 text-success"></i>
+
+            Shipping Package
+
+        </h5>
+
+    </div>
+
+    <div class="card-body">
+
+        <div class="row g-4">
+
+            <div class="col-lg-3">
+
+                <label class="form-label">
+
+                    Weight (kg)
+
+                </label>
+
+                <input
+                    class="form-control"
+                    type="number"
+                    step="0.01"
+                    name="shippingWeight"
+                    value="<%= product.shipping?.weight || 0.5 %>">
+
+            </div>
+
+            <div class="col-lg-3">
+
+                <label class="form-label">
+
+                    Length (cm)
+
+                </label>
+
+                <input
+                    class="form-control"
+                    type="number"
+                    name="shippingLength"
+                    value="<%= product.shipping?.length || 15 %>">
+
+            </div>
+
+            <div class="col-lg-3">
+
+                <label class="form-label">
+
+                    Breadth (cm)
+
+                </label>
+
+                <input
+                    class="form-control"
+                    type="number"
+                    name="shippingBreadth"
+                    value="<%= product.shipping?.breadth || 12 %>">
+
+            </div>
+
+            <div class="col-lg-3">
+
+                <label class="form-label">
+
+                    Height (cm)
+
+                </label>
+
+                <input
+                    class="form-control"
+                    type="number"
+                    name="shippingHeight"
+                    value="<%= product.shipping?.height || 6 %>">
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ===================================
+PART 3 STARTS HERE
+=================================== -->
+<!-- ===================================
+    Product Description
+=================================== -->
+
+<div class="card shadow-sm border-0 mb-4">
+
+    <div class="card-header bg-white">
+
+        <h5 class="mb-0">
+
+            <i class="bi bi-card-text me-2 text-success"></i>
+
+            Product Description
+
+        </h5>
+
+    </div>
+
+    <div class="card-body">
+
+        <div class="mb-4">
+
+            <label class="form-label">
+
+                Short Description
+
+            </label>
+
+            <textarea
+                class="form-control"
+                rows="3"
+                name="shortDescription"><%= product.shortDescription || "" %></textarea>
+
+        </div>
+
+        <div>
+
+            <label class="form-label">
+
+                Full Description
+
+            </label>
+
+            <textarea
+                class="form-control"
+                rows="8"
+                name="description"><%= product.description || "" %></textarea>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ===================================
+    Product Images
+=================================== -->
+
+<div class="card shadow-sm border-0 mb-4">
+
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+
+        <h5 class="mb-0">
+
+            <i class="bi bi-images me-2 text-success"></i>
+
+            Product Images
+
+        </h5>
+
+        <button
+            type="button"
+            class="btn btn-success btn-sm"
+            onclick="addImageField()">
+
+            <i class="bi bi-plus-lg"></i>
+
+            Add Image
+
+        </button>
+
+    </div>
+
+    <div class="card-body">
+
+        <div id="imageContainer">
+
+            <% if(product.images && product.images.length){ %>
+
+                <% product.images.forEach(image=>{ %>
+
+                <div class="input-group mb-3 dynamic-item">
+
+                    <input
+                        class="form-control"
+                        name="images"
+                        value="<%= image %>">
+
+                    <button
+                        type="button"
+                        class="btn btn-outline-danger"
+                        onclick="removeElement(this)">
+
+                        Remove
+
+                    </button>
+
+                </div>
+
+                <% }) %>
+
+            <% } else { %>
+
+                <div class="input-group mb-3">
+
+                    <input
+                        class="form-control"
+                        name="images">
+
+                    <button
+                        class="btn btn-outline-danger"
+                        disabled>
+
+                        Remove
+
+                    </button>
+
+                </div>
+
+            <% } %>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ===================================
+    Product Videos
+=================================== -->
+
+<div class="card shadow-sm border-0 mb-4">
+
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+
+        <h5 class="mb-0">
+
+            <i class="bi bi-camera-video me-2 text-success"></i>
+
+            Product Videos
+
+        </h5>
+
+        <button
+            type="button"
+            class="btn btn-success btn-sm"
+            onclick="addVideoField()">
+
+            <i class="bi bi-plus-lg"></i>
+
+            Add Video
+
+        </button>
+
+    </div>
+
+    <div class="card-body">
+
+        <div id="videoContainer">
+
+            <% if(product.videos && product.videos.length){ %>
+
+                <% product.videos.forEach(video=>{ %>
+
+                <div class="input-group mb-3 dynamic-item">
+
+                    <input
+                        class="form-control"
+                        name="videos"
+                        value="<%= video %>">
+
+                    <button
+                        type="button"
+                        class="btn btn-outline-danger"
+                        onclick="removeElement(this)">
+
+                        Remove
+
+                    </button>
+
+                </div>
+
+                <% }) %>
+
+            <% } else { %>
+
+                <div class="input-group mb-3">
+
+                    <input
+                        class="form-control"
+                        name="videos">
+
+                    <button
+                        class="btn btn-outline-danger"
+                        disabled>
+
+                        Remove
+
+                    </button>
+
+                </div>
+
+            <% } %>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ===================================
+PART 4 STARTS HERE
+=================================== -->
+
+<!-- ===================================
+    Stone Details
+=================================== -->
+
+<div class="card shadow-sm border-0 mb-4">
+
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+
+        <h5 class="mb-0">
+
+            <i class="bi bi-gem me-2 text-success"></i>
+
+            Stone Details
+
+        </h5>
+
+        <button
+            type="button"
+            class="btn btn-success btn-sm"
+            onclick="addStone()">
+
+            <i class="bi bi-plus-lg"></i>
+
+            Add Stone
+
+        </button>
+
+    </div>
+
+    <div class="card-body">
+
+        <div id="stoneContainer">
+
+            <% if(product.stones && product.stones.length){ %>
+
+                <% product.stones.forEach(stone=>{ %>
+
+                <div class="card border mb-3 dynamic-item">
+
+                    <div class="card-body">
+
+                        <div class="row g-3">
+
+                            <div class="col-lg-4">
+
+                                <label class="form-label">
+
+                                    Stone Type
+
+                                </label>
+
+                                <input
+                                    class="form-control"
+                                    name="stoneType[]"
+                                    value="<%= stone.type %>">
+
+                            </div>
+
+                            <div class="col-lg-4">
+
+                                <label class="form-label">
+
+                                    Shape
+
+                                </label>
+
+                                <input
+                                    class="form-control"
+                                    name="stoneShape[]"
+                                    value="<%= stone.shape %>">
+
+                            </div>
+
+                            <div class="col-lg-4">
+
+                                <label class="form-label">
+
+                                    Quantity
+
+                                </label>
+
+                                <input
+                                    class="form-control"
+                                    type="number"
+                                    name="stoneQuantity[]"
+                                    value="<%= stone.quantity %>">
+
+                            </div>
+
+                            <div class="col-lg-4">
+
+                                <label class="form-label">
+
+                                    Weight (ct)
+
+                                </label>
+
+                                <input
+                                    class="form-control"
+                                    type="number"
+                                    step="0.001"
+                                    name="stoneWeight[]"
+                                    value="<%= stone.weight %>">
+
+                            </div>
+
+                            <div class="col-lg-4">
+
+                                <label class="form-label">
+
+                                    Price
+
+                                </label>
+
+                                <input
+                                    class="form-control"
+                                    type="number"
+                                    step="0.01"
+                                    name="stonePrice[]"
+                                    value="<%= stone.price %>">
+
+                            </div>
+
+                            <div class="col-lg-4">
+
+                                <label class="form-label">
+
+                                    Pricing Type
+
+                                </label>
+
+                                <select
+                                    class="form-select"
+                                    name="stonePricingType[]">
+
+                                    <option
+                                        value="fixed"
+                                        <%= stone.pricingType==="fixed" ? "selected":"" %>>
+
+                                        Fixed
+
+                                    </option>
+
+                                    <option
+                                        value="perCarat"
+                                        <%= stone.pricingType==="perCarat" ? "selected":"" %>>
+
+                                        Per Carat
+
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                            <div class="col-lg-4">
+
+                                <label class="form-label">
+
+                                    Color
+
+                                </label>
+
+                                <input
+                                    class="form-control"
+                                    name="stoneColor[]"
+                                    value="<%= stone.color %>">
+
+                            </div>
+
+                            <div class="col-lg-4">
+
+                                <label class="form-label">
+
+                                    Clarity
+
+                                </label>
+
+                                <input
+                                    class="form-control"
+                                    name="stoneClarity[]"
+                                    value="<%= stone.clarity %>">
+
+                            </div>
+
+                            <div class="col-lg-4">
+
+                                <label class="form-label">
+
+                                    Size Range
+
+                                </label>
+
+                                <input
+                                    class="form-control"
+                                    name="stoneSizeRange[]"
+                                    value="<%= stone.sizeRange %>">
+
+                            </div>
+
+                            <div class="col-12 text-end">
+
+                                <button
+                                    type="button"
+                                    class="btn btn-outline-danger"
+                                    onclick="removeElement(this)">
+
+                                    Remove Stone
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <% }) %>
+
+            <% } %>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ===================================
+    Specifications
+=================================== -->
+
+<div class="card shadow-sm border-0 mb-4">
+
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+
+        <h5 class="mb-0">
+
+            <i class="bi bi-card-list me-2 text-success"></i>
+
+            Specifications
+
+        </h5>
+
+        <button
+            type="button"
+            class="btn btn-success btn-sm"
+            onclick="addSpecification()">
+
+            <i class="bi bi-plus-lg"></i>
+
+            Add Specification
+
+        </button>
+
+    </div>
+
+    <div class="card-body">
+
+        <div id="specificationContainer">
+
+            <% if(product.specifications && product.specifications.length){ %>
+
+                <% product.specifications.forEach(spec=>{ %>
+
+                <div class="row g-3 mb-3 dynamic-item">
+
+                    <div class="col-md-5">
+
+                        <input
+                            class="form-control"
+                            name="specificationKey[]"
+                            value="<%= spec.key %>">
+
+                    </div>
+
+                    <div class="col-md-5">
+
+                        <input
+                            class="form-control"
+                            name="specificationValue[]"
+                            value="<%= spec.value %>">
+
+                    </div>
+
+                    <div class="col-md-2">
+
+                        <button
+                            type="button"
+                            class="btn btn-outline-danger w-100"
+                            onclick="removeElement(this)">
+
+                            Remove
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <% }) %>
+
+            <% } %>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ===================================
+PART 5 STARTS HERE
+=================================== -->
+
+<!-- ===================================
+    SEO
+=================================== -->
+
+<div class="card shadow-sm border-0 mb-4">
+
+    <div class="card-header bg-white">
+
+        <h5 class="mb-0">
+
+            <i class="bi bi-google me-2 text-success"></i>
+
+            SEO Information
+
+        </h5>
+
+    </div>
+
+    <div class="card-body">
+
+        <div class="row g-4">
+
+            <div class="col-12">
+
+                <label class="form-label">
+
+                    SEO Title
+
+                </label>
+
+                <input
+                    class="form-control"
+                    name="seoTitle"
+                    value="<%= product.seoTitle || '' %>">
+
+            </div>
+
+            <div class="col-12">
+
+                <label class="form-label">
+
+                    SEO Description
+
+                </label>
+
+                <textarea
+                    class="form-control"
+                    rows="4"
+                    name="seoDescription"><%= product.seoDescription || "" %></textarea>
+
+            </div>
+
+            <div class="col-12">
+
+                <label class="form-label">
+
+                    SEO Keywords
+
+                </label>
+
+                <input
+                    class="form-control"
+                    name="seoKeywords"
+                    value="<%= product.seoKeywords || '' %>">
+
+                <small class="text-muted">
+
+                    Separate keywords with commas.
+
+                </small>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ===================================
+    Product Status
+=================================== -->
+
+<div class="card shadow-sm border-0 mb-4">
+
+    <div class="card-header bg-white">
+
+        <h5 class="mb-0">
+
+            <i class="bi bi-toggle-on me-2 text-success"></i>
+
+            Product Status
+
+        </h5>
+
+    </div>
+
+    <div class="card-body">
+
+        <div class="row">
+
+            <div class="col-lg-3">
+
+                <div class="form-check">
+
+                    <input
+                        class="form-check-input"
+                        type="checkbox"
+                        name="isFeatured"
+                        <%= product.isFeatured ? "checked" : "" %>>
+
+                    <label class="form-check-label">
+
+                        Featured Product
+
+                    </label>
+
+                </div>
+
+            </div>
+
+            <div class="col-lg-3">
+
+                <div class="form-check">
+
+                    <input
+                        class="form-check-input"
+                        type="checkbox"
+                        name="isActive"
+                        <%= product.isActive ? "checked" : "" %>>
+
+                    <label class="form-check-label">
+
+                        Active
+
+                    </label>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ===================================
+    Customization Fields
+=================================== -->
+
+<div class="card shadow-sm border-0 mb-4">
+
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+
+        <h5 class="mb-0">
+
+            <i class="bi bi-sliders me-2 text-success"></i>
+
+            Customization Fields
+
+        </h5>
+
+        <button
+            type="button"
+            class="btn btn-success btn-sm"
+            onclick="addCustomizationField()">
+
+            <i class="bi bi-plus-lg"></i>
+
+            Add Field
+
+        </button>
+
+    </div>
+
+    <div class="card-body">
+
+        <div id="customizationContainer">
+
+            <% if(product.customizationFields && product.customizationFields.length){ %>
+
+                <% product.customizationFields.forEach((field,index)=>{ %>
+
+                <div class="card border mb-3 dynamic-item">
+
+                    <div class="card-body">
+
+                        <div class="row g-3">
+
+                            <div class="col-lg-3">
+
+                                <label>Name</label>
+
+                                <input
+                                    class="form-control"
+                                    name="customizationFields[<%= index %>][name]"
+                                    value="<%= field.name %>">
+
+                            </div>
+
+                            <div class="col-lg-3">
+
+                                <label>Label</label>
+
+                                <input
+                                    class="form-control"
+                                    name="customizationFields[<%= index %>][label]"
+                                    value="<%= field.label %>">
+
+                            </div>
+
+                            <div class="col-lg-3">
+
+                                <label>Type</label>
+
+                                <select
+                                    class="form-select"
+                                    name="customizationFields[<%= index %>][type]">
+
+                                    <option value="text" <%= field.type==="text"?"selected":"" %>>Text</option>
+
+                                    <option value="number" <%= field.type==="number"?"selected":"" %>>Number</option>
+
+                                    <option value="select" <%= field.type==="select"?"selected":"" %>>Select</option>
+
+                                    <option value="radio" <%= field.type==="radio"?"selected":"" %>>Radio</option>
+
+                                    <option value="checkbox" <%= field.type==="checkbox"?"selected":"" %>>Checkbox</option>
+
+                                </select>
+
+                            </div>
+
+                            <div class="col-lg-3">
+
+                                <label>Placeholder</label>
+
+                                <input
+                                    class="form-control"
+                                    name="customizationFields[<%= index %>][placeholder]"
+                                    value="<%= field.placeholder || '' %>">
+
+                            </div>
+
+                            <div class="col-lg-6">
+
+                                <label>Options</label>
+
+                                <input
+                                    class="form-control"
+                                    name="customizationFields[<%= index %>][options]"
+                                    value="<%= field.options ? field.options.join(',') : '' %>">
+
+                            </div>
+
+                            <div class="col-lg-3">
+
+                                <label>Depends On</label>
+
+                                <input
+                                    class="form-control"
+                                    name="customizationFields[<%= index %>][dependsOn][field]"
+                                    value="<%= field.dependsOn?.field || '' %>">
+
+                            </div>
+
+                            <div class="col-lg-3">
+
+                                <label>Depends Value</label>
+
+                                <input
+                                    class="form-control"
+                                    name="customizationFields[<%= index %>][dependsOn][value]"
+                                    value="<%= field.dependsOn?.value || '' %>">
+
+                            </div>
+
+                            <div class="col-lg-6">
+
+                                <div class="form-check mt-4">
+
+                                    <input
+                                        class="form-check-input"
+                                        type="checkbox"
+                                        name="customizationFields[<%= index %>][required]"
+                                        <%= field.required ? "checked" : "" %>>
+
+                                    <label class="form-check-label">
+
+                                        Required
+
+                                    </label>
+
+                                </div>
+
+                            </div>
+
+                            <div class="col-lg-6 text-end">
+
+                                <button
+                                    type="button"
+                                    class="btn btn-outline-danger mt-4"
+                                    onclick="removeElement(this)">
+
+                                    Remove Field
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <% }) %>
+
+            <% } %>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ===================================
+    Submit
+=================================== -->
+
+<div class="d-flex justify-content-end gap-2 mb-5">
+
+    <a
+        href="/admin/products"
+        class="btn btn-outline-secondary">
+
+        Cancel
+
+    </a>
+
+    <button
+        type="submit"
+        class="btn btn-success px-5">
+
+        <i class="bi bi-check-circle me-2"></i>
+
+        Update Product
+
+    </button>
+
+</div>
+
+</form>
+
+</section>
+
+</main>
+
+</div>
+
+<!-- ===================================
+PART 6 STARTS HERE
+=================================== -->
+<script>
+
+/* =======================================
+REMOVE ELEMENT
+======================================= */
+
+function removeElement(button){
+
+    const element =
+        button.closest(".dynamic-item") ||
+        button.closest(".input-group") ||
+        button.closest(".card") ||
+        button.closest(".row");
+
+    if(element){
+        element.remove();
+    }
+
+}
+
+/* =======================================
+IMAGES
+======================================= */
+
+function addImageField(){
+
+    const container = document.getElementById("imageContainer");
+
+    const div = document.createElement("div");
+
+    div.className = "input-group mb-3 dynamic-item";
+
+    div.innerHTML = `
+
+        <input
+            class="form-control"
+            name="images">
+
+        <button
+            type="button"
+            class="btn btn-outline-danger"
+            onclick="removeElement(this)">
+
+            Remove
+
+        </button>
+
+    `;
+
+    container.appendChild(div);
+
+}
+
+/* =======================================
+VIDEOS
+======================================= */
+
+function addVideoField(){
+
+    const container = document.getElementById("videoContainer");
+
+    const div = document.createElement("div");
+
+    div.className = "input-group mb-3 dynamic-item";
+
+    div.innerHTML = `
+
+        <input
+            class="form-control"
+            name="videos">
+
+        <button
+            type="button"
+            class="btn btn-outline-danger"
+            onclick="removeElement(this)">
+
+            Remove
+
+        </button>
+
+    `;
+
+    container.appendChild(div);
+
+}
+
+/* =======================================
+STONES
+======================================= */
+
+function addStone(){
+
+    const container = document.getElementById("stoneContainer");
+
+    const card = document.createElement("div");
+
+    card.className = "card border mb-3 dynamic-item";
+
+    card.innerHTML = `
+
+<div class="card-body">
+
+<div class="row g-3">
+
+<div class="col-md-4">
+<label>Stone Type</label>
+<input class="form-control" name="stoneType[]">
+</div>
+
+<div class="col-md-4">
+<label>Shape</label>
+<input class="form-control" name="stoneShape[]">
+</div>
+
+<div class="col-md-4">
+<label>Quantity</label>
+<input class="form-control" type="number" value="1" name="stoneQuantity[]">
+</div>
+
+<div class="col-md-4">
+<label>Weight</label>
+<input class="form-control" type="number" step="0.001" name="stoneWeight[]">
+</div>
+
+<div class="col-md-4">
+<label>Price</label>
+<input class="form-control" type="number" step="0.01" name="stonePrice[]">
+</div>
+
+<div class="col-md-4">
+<label>Pricing Type</label>
+
+<select class="form-select" name="stonePricingType[]">
+<option value="fixed">Fixed</option>
+<option value="perCarat">Per Carat</option>
+</select>
+
+</div>
+
+<div class="col-md-4">
+<label>Color</label>
+<input class="form-control" name="stoneColor[]">
+</div>
+
+<div class="col-md-4">
+<label>Clarity</label>
+<input class="form-control" name="stoneClarity[]">
+</div>
+
+<div class="col-md-4">
+<label>Size Range</label>
+<input class="form-control" name="stoneSizeRange[]">
+</div>
+
+<div class="col-12 text-end">
+
+<button
+type="button"
+class="btn btn-outline-danger"
+onclick="removeElement(this)">
+
+Remove Stone
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+`;
+
+    container.appendChild(card);
+
+}
+
+/* =======================================
+SPECIFICATIONS
+======================================= */
+
+function addSpecification(){
+
+    const container =
+        document.getElementById("specificationContainer");
+
+    const row = document.createElement("div");
+
+    row.className = "row g-3 mb-3 dynamic-item";
+
+    row.innerHTML = `
+
+<div class="col-md-5">
+
+<input
+class="form-control"
+name="specificationKey[]">
+
+</div>
+
+<div class="col-md-5">
+
+<input
+class="form-control"
+name="specificationValue[]">
+
+</div>
+
+<div class="col-md-2">
+
+<button
+type="button"
+class="btn btn-outline-danger w-100"
+onclick="removeElement(this)">
+
+Remove
+
+</button>
+
+</div>
+
+`;
+
+    container.appendChild(row);
+
+}
+
+/* =======================================
+CUSTOMIZATION
+======================================= */
+
+let customizationIndex =
+    <%= product.customizationFields ? product.customizationFields.length : 0 %>;
+
+function addCustomizationField(){
+
+    const container =
+        document.getElementById("customizationContainer");
+
+    const card = document.createElement("div");
+
+    card.className = "card border mb-3 dynamic-item";
+
+    card.innerHTML = `
+
+<div class="card-body">
+
+<div class="row g-3">
+
+<div class="col-md-3">
+
+<label>Name</label>
+
+<input
+class="form-control"
+name="customizationFields[\${customizationIndex}][name]">
+
+</div>
+
+<div class="col-md-3">
+
+<label>Label</label>
+
+<input
+class="form-control"
+name="customizationFields[\${customizationIndex}][label]">
+
+</div>
+
+<div class="col-md-3">
+
+<label>Type</label>
+
+<select
+class="form-select"
+name="customizationFields[\${customizationIndex}][type]">
+
+<option value="text">Text</option>
+<option value="number">Number</option>
+<option value="select">Select</option>
+<option value="radio">Radio</option>
+<option value="checkbox">Checkbox</option>
+
+</select>
+
+</div>
+
+<div class="col-md-3">
+
+<label>Placeholder</label>
+
+<input
+class="form-control"
+name="customizationFields[\${customizationIndex}][placeholder]">
+
+</div>
+
+<div class="col-md-6">
+
+<label>Options</label>
+
+<input
+class="form-control"
+name="customizationFields[\${customizationIndex}][options]">
+
+</div>
+
+<div class="col-md-3">
+
+<label>Depends On</label>
+
+<input
+class="form-control"
+name="customizationFields[\${customizationIndex}][dependsOn][field]">
+
+</div>
+
+<div class="col-md-3">
+
+<label>Depends Value</label>
+
+<input
+class="form-control"
+name="customizationFields[\${customizationIndex}][dependsOn][value]">
+
+</div>
+
+<div class="col-md-6">
+
+<div class="form-check mt-4">
+
+<input
+class="form-check-input"
+type="checkbox"
+name="customizationFields[\${customizationIndex}][required]">
+
+<label class="form-check-label">
+
+Required
+
+</label>
+
+</div>
+
+</div>
+
+<div class="col-md-6 text-end">
+
+<button
+type="button"
+class="btn btn-outline-danger mt-4"
+onclick="removeElement(this)">
+
+Remove Field
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+`;
+
+    container.appendChild(card);
+
+    customizationIndex++;
+
+}
+
+</script>
+
+</body>
+</html>

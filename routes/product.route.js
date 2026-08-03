@@ -25,11 +25,6 @@ const router = Router();
     ADMIN ROUTES
 ====================================================== */
 
-router.post(
-    "/addproduct",
-    restrictToAdminOnly,
-    handleAddProduct
-);
 router.get("/details/:id", handleGetProduct);
 
 router.get("/:id",restrictToAdminOnly, handleProduct);

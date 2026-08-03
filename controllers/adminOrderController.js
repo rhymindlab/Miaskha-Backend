@@ -13,9 +13,14 @@ exports.getAllOrders = async (req, res) => {
             .sort({ createdAt: -1 })
             .lean();
 
-        return res.render("admin/orders", {
+        return res.render("pages/orders/index", {
+
+            pageTitle: "Orders",
+            activePage: "orders",
+
             orders,
             user: req.user,
+
         });
 
     } catch (error) {
@@ -220,10 +225,15 @@ exports.getOrderDetails = async (req, res) => {
         ==================================================== */
 
         return res.render(
-            "admin/order-details",
+            "pages/orders/details",
             {
+
+                pageTitle: "Order Details",
+                activePage: "orders",
+
                 order: order.toObject(),
                 user: req.user,
+
             }
         );
 
@@ -238,4 +248,39 @@ exports.getOrderDetails = async (req, res) => {
             "Unable to load order details"
         );
     }
+};
+
+exports.updateOrderStatus = async (req, res) => {
+
+    try {
+
+        const { id } = req.params;
+
+        const { orderStatus } = req.body;
+
+        await Order.findByIdAndUpdate(
+
+            id,
+
+            {
+                orderStatus,
+            },
+
+            {
+                new: true,
+                runValidators: true,
+            }
+
+        );
+
+        return res.redirect(`/admin/orders/${id}`);
+
+    } catch (error) {
+
+        console.error(error);
+
+        return res.status(500).send("Unable to update order.");
+
+    }
+
 };

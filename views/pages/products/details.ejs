@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<%- include("../../partials/head",{ title:"Product Details" }) %>
+
+<body>
+
+<div class="admin-wrapper">
+
+    <%- include("../../partials/sidebar") %>
+
+    <main class="admin-main">
+
+        <%- include("../../partials/header",{
+            pageTitle:"Product Details"
+        }) %>
+
+        <section class="admin-content">
+
+            <!-- ==============================
+                PAGE HEADER
+            =============================== -->
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+
+                <div>
+
+                    <h2 class="fw-bold">
+
+                        Product Details
+
+                    </h2>
+
+                    <p class="text-muted mb-0">
+
+                        View complete product information.
+
+                    </p>
+
+                </div>
+
+                <div class="d-flex gap-2">
+
+                    <a
+                        href="/admin/products"
+                        class="btn btn-outline-secondary">
+
+                        <i class="bi bi-arrow-left me-2"></i>
+
+                        Back
+
+                    </a>
+
+                    <a
+                        href="/admin/products/<%= product._id %>/edit"
+                        class="btn btn-success">
+
+                        <i class="bi bi-pencil-square me-2"></i>
+
+                        Edit Product
+
+                    </a>
+
+                </div>
+
+            </div>
+
+            <!-- ==============================
+                IMAGE GALLERY
+            =============================== -->
+
+            <div class="card shadow-sm border-0 mb-4">
+
+                <div class="card-header bg-white">
+
+                    <h5 class="mb-0">
+
+                        Product Images
+
+                    </h5>
+
+                </div>
+
+                <div class="card-body">
+
+                    <div class="row g-3">
+
+                        <% if(product.images && product.images.length){ %>
+
+                            <% product.images.forEach(image=>{ %>
+
+                            <div class="col-lg-3 col-md-4 col-sm-6">
+
+                                <img
+                                    src="<%= image %>"
+                                    class="img-fluid rounded border"
+                                    style="
+                                        width:100%;
+                                        height:220px;
+                                        object-fit:cover;
+                                    ">
+
+                            </div>
+
+                            <% }) %>
+
+                        <% } else { %>
+
+                            <div class="col-12 text-center py-5">
+
+                                <i class="bi bi-image fs-1 text-muted"></i>
+
+                                <p class="mt-3">
+
+                                    No Images Available
+
+                                </p>
+
+                            </div>
+
+                        <% } %>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- ==============================
+                BASIC INFORMATION
+            =============================== -->
+
+            <div class="card shadow-sm border-0 mb-4">
+
+                <div class="card-header bg-white">
+
+                    <h5 class="mb-0">
+
+                        Basic Information
+
+                    </h5>
+
+                </div>
+
+                <div class="card-body">
+
+                    <div class="row g-4">
+
+                        <div class="col-md-6">
+
+                            <strong>
+
+                                Product Title
+
+                            </strong>
+
+                            <p>
+
+                                <%= product.title %>
+
+                            </p>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <strong>
+
+                                SKU
+
+                            </strong>
+
+                            <p>
+
+                                <%= product.sku %>
+
+                            </p>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <strong>
+
+                                Product Type
+
+                            </strong>
+
+                            <p>
+
+                                <%= product.productType %>
+
+                            </p>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <strong>
+
+                                Category
+
+                            </strong>
+
+                            <p>
+
+                                <%= product.category?.name || "-" %>
+
+                            </p>
+
+                        </div>
+
+                        <div class="col-12">
+
+                            <strong>
+
+                                Collections
+
+                            </strong>
+
+                            <p>
+
+                                <% if(product.collections && product.collections.length){ %>
+
+                                    <% product.collections.forEach(collection=>{ %>
+
+                                        <span class="badge bg-success me-2">
+
+                                            <%= collection.name %>
+
+                                        </span>
+
+                                    <% }) %>
+
+                                <% } else { %>
+
+                                    -
+
+                                <% } %>
+
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+<!-- =====================================
+PART 2 STARTS HERE
+===================================== -->
+<!-- =====================================
+    PRICING
+===================================== -->
+
+<div class="card shadow-sm border-0 mb-4">
+
+    <div class="card-header bg-white">
+
+        <h5 class="mb-0">
+
+            Pricing Information
+
+        </h5>
+
+    </div>
+
+    <div class="card-body">
+
+        <div class="row g-4">
+
+            <div class="col-md-3">
+
+                <strong>
+
+                    Pricing Mode
+
+                </strong>
+
+                <p>
+
+                    <%= product.pricingMode || "-" %>
+
+                </p>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <strong>
+
+                    MRP
+
+                </strong>
+
+                <p>
+
+                    ₹ <%= product.mrp %>
+
+                </p>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <strong>
+
+                    Sale Price
+
+                </strong>
+
+                <p class="text-success fw-bold">
+
+                    ₹ <%= product.salePrice %>
+
+                </p>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <strong>
+
+                    Stock
+
+                </strong>
+
+                <p>
+
+                    <%= product.stock %>
+
+                </p>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <strong>
+
+                    Fixed Price
+
+                </strong>
+
+                <p>
+
+                    ₹ <%= product.fixedPrice || 0 %>
+
+                </p>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <strong>
+
+                    Making Charge Type
+
+                </strong>
+
+                <p>
+
+                    <%= product.makingChargesType || "-" %>
+
+                </p>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <strong>
+
+                    Making Charge Value
+
+                </strong>
+
+                <p>
+
+                    <%= product.makingChargesValue || 0 %>
+
+                </p>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <strong>
+
+                    Dynamic Pricing
+
+                </strong>
+
+                <p>
+
+                    <% if(product.dynamicMetal){ %>
+
+                        <span class="badge bg-success">
+
+                            Metal
+
+                        </span>
+
+                    <% } %>
+
+                    <% if(product.dynamicStone){ %>
+
+                        <span class="badge bg-primary">
+
+                            Stone
+
+                        </span>
+
+                    <% } %>
+
+                    <% if(product.dynamicMakingCharges){ %>
+
+                        <span class="badge bg-warning text-dark">
+
+                            Making
+
+                        </span>
+
+                    <% } %>
+
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- =====================================
+    METAL INFORMATION
+===================================== -->
+
+<div class="card shadow-sm border-0 mb-4">
+
+    <div class="card-header bg-white">
+
+        <h5 class="mb-0">
+
+            Metal Information
+
+        </h5>
+
+    </div>
+
+    <div class="card-body">
+
+        <div class="row g-4">
+
+            <div class="col-md-3">
+
+                <strong>
+
+                    Metal Type
+
+                </strong>
+
+                <p>
+
+                    <%= product.metalType || "-" %>
+
+                </p>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <strong>
+
+                    Purity
+
+                </strong>
+
+                <p>
+
+                    <%= product.purity || "-" %>
+
+                </p>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <strong>
+
+                    Metal Weight
+
+                </strong>
+
+                <p>
+
+                    <%= product.metalWeight || 0 %> gm
+
+                </p>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <strong>
+
+                    Product Weight
+
+                </strong>
+
+                <p>
+
+                    <%= product.productWeight || 0 %> gm
+
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- =====================================
+    SHIPPING DETAILS
+===================================== -->
+
+<div class="card shadow-sm border-0 mb-4">
+
+    <div class="card-header bg-white">
+
+        <h5 class="mb-0">
+
+            Shipping Package
+
+        </h5>
+
+    </div>
+
+    <div class="card-body">
+
+        <div class="row g-4">
+
+            <div class="col-md-3">
+
+                <strong>
+
+                    Weight
+
+                </strong>
+
+                <p>
+
+                    <%= product.shipping?.weight || 0.5 %> kg
+
+                </p>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <strong>
+
+                    Length
+
+                </strong>
+
+                <p>
+
+                    <%= product.shipping?.length || 15 %> cm
+
+                </p>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <strong>
+
+                    Breadth
+
+                </strong>
+
+                <p>
+
+                    <%= product.shipping?.breadth || 12 %> cm
+
+                </p>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <strong>
+
+                    Height
+
+                </strong>
+
+                <p>
+
+                    <%= product.shipping?.height || 6 %> cm
+
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- =====================================
+PART 3 STARTS HERE
+===================================== -->
+<!-- =====================================
+    STONE DETAILS
+===================================== -->
+
+<div class="card shadow-sm border-0 mb-4">
+
+    <div class="card-header bg-white">
+
+        <h5 class="mb-0">
+
+            Stone Details
+
+        </h5>
+
+    </div>
+
+    <div class="card-body">
+
+        <% if(product.stones && product.stones.length){ %>
+
+        <div class="table-responsive">
+
+            <table class="table table-bordered align-middle">
+
+                <thead class="table-light">
+
+                    <tr>
+
+                        <th>Type</th>
+
+                        <th>Shape</th>
+
+                        <th>Qty</th>
+
+                        <th>Weight</th>
+
+                        <th>Price</th>
+
+                        <th>Pricing</th>
+
+                        <th>Color</th>
+
+                        <th>Clarity</th>
+
+                        <th>Size</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    <% product.stones.forEach(stone=>{ %>
+
+                    <tr>
+
+                        <td><%= stone.type %></td>
+
+                        <td><%= stone.shape %></td>
+
+                        <td><%= stone.quantity %></td>
+
+                        <td><%= stone.weight %> ct</td>
+
+                        <td>₹ <%= stone.price %></td>
+
+                        <td><%= stone.pricingType %></td>
+
+                        <td><%= stone.color %></td>
+
+                        <td><%= stone.clarity %></td>
+
+                        <td><%= stone.sizeRange %></td>
+
+                    </tr>
+
+                    <% }) %>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <% } else { %>
+
+        <div class="text-center py-4 text-muted">
+
+            No Stone Details Available
+
+        </div>
+
+        <% } %>
+
+    </div>
+
+</div>
+
+<!-- =====================================
+    SPECIFICATIONS
+===================================== -->
+
+<div class="card shadow-sm border-0 mb-4">
+
+    <div class="card-header bg-white">
+
+        <h5 class="mb-0">
+
+            Specifications
+
+        </h5>
+
+    </div>
+
+    <div class="card-body">
+
+        <% if(product.specifications && product.specifications.length){ %>
+
+        <div class="table-responsive">
+
+            <table class="table table-striped">
+
+                <thead>
+
+                    <tr>
+
+                        <th width="40%">Key</th>
+
+                        <th>Value</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    <% product.specifications.forEach(spec=>{ %>
+
+                    <tr>
+
+                        <td>
+
+                            <strong>
+
+                                <%= spec.key %>
+
+                            </strong>
+
+                        </td>
+
+                        <td>
+
+                            <%= spec.value %>
+
+                        </td>
+
+                    </tr>
+
+                    <% }) %>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <% } else { %>
+
+        <div class="text-center py-4 text-muted">
+
+            No Specifications Added
+
+        </div>
+
+        <% } %>
+
+    </div>
+
+</div>
+
+<!-- =====================================
+    VIDEOS
+===================================== -->
+
+<div class="card shadow-sm border-0 mb-4">
+
+    <div class="card-header bg-white">
+
+        <h5 class="mb-0">
+
+            Product Videos
+
+        </h5>
+
+    </div>
+
+    <div class="card-body">
+
+        <% if(product.videos && product.videos.length){ %>
+
+        <div class="row g-4">
+
+            <% product.videos.forEach(video=>{ %>
+
+            <div class="col-lg-6">
+
+                <div class="ratio ratio-16x9">
+
+                    <iframe
+                        src="<%= video %>"
+                        allowfullscreen>
+
+                    </iframe>
+
+                </div>
+
+            </div>
+
+            <% }) %>
+
+        </div>
+
+        <% } else { %>
+
+        <div class="text-center py-4 text-muted">
+
+            No Videos Available
+
+        </div>
+
+        <% } %>
+
+    </div>
+
+</div>
+
+<!-- =====================================
+PART 4 STARTS HERE
+===================================== -->
+<!-- =====================================
+    SEO INFORMATION
+===================================== -->
+
+<div class="card shadow-sm border-0 mb-4">
+
+    <div class="card-header bg-white">
+
+        <h5 class="mb-0">
+
+            SEO Information
+
+        </h5>
+
+    </div>
+
+    <div class="card-body">
+
+        <div class="row g-4">
+
+            <div class="col-md-12">
+
+                <strong>
+
+                    SEO Title
+
+                </strong>
+
+                <p>
+
+                    <%= product.seoTitle || "-" %>
+
+                </p>
+
+            </div>
+
+            <div class="col-md-12">
+
+                <strong>
+
+                    SEO Description
+
+                </strong>
+
+                <p>
+
+                    <%= product.seoDescription || "-" %>
+
+                </p>
+
+            </div>
+
+            <div class="col-md-12">
+
+                <strong>
+
+                    SEO Keywords
+
+                </strong>
+
+                <p>
+
+                    <%= product.seoKeywords || "-" %>
+
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- =====================================
+    PRODUCT STATUS
+===================================== -->
+
+<div class="card shadow-sm border-0 mb-4">
+
+    <div class="card-header bg-white">
+
+        <h5 class="mb-0">
+
+            Product Status
+
+        </h5>
+
+    </div>
+
+    <div class="card-body">
+
+        <div class="row g-4">
+
+            <div class="col-md-3">
+
+                <strong>
+
+                    Status
+
+                </strong>
+
+                <p>
+
+                    <% if(product.isActive){ %>
+
+                        <span class="badge bg-success">
+
+                            Active
+
+                        </span>
+
+                    <% } else { %>
+
+                        <span class="badge bg-danger">
+
+                            Inactive
+
+                        </span>
+
+                    <% } %>
+
+                </p>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <strong>
+
+                    Featured
+
+                </strong>
+
+                <p>
+
+                    <% if(product.isFeatured){ %>
+
+                        <span class="badge bg-warning text-dark">
+
+                            Featured
+
+                        </span>
+
+                    <% } else { %>
+
+                        <span class="badge bg-secondary">
+
+                            No
+
+                        </span>
+
+                    <% } %>
+
+                </p>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <strong>
+
+                    Created
+
+                </strong>
+
+                <p>
+
+                    <%= product.createdAt
+                        ? new Date(product.createdAt).toLocaleDateString()
+                        : "-" %>
+
+                </p>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <strong>
+
+                    Updated
+
+                </strong>
+
+                <p>
+
+                    <%= product.updatedAt
+                        ? new Date(product.updatedAt).toLocaleDateString()
+                        : "-" %>
+
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- =====================================
+    CUSTOMIZATION FIELDS
+===================================== -->
+
+<div class="card shadow-sm border-0 mb-4">
+
+    <div class="card-header bg-white">
+
+        <h5 class="mb-0">
+
+            Customization Fields
+
+        </h5>
+
+    </div>
+
+    <div class="card-body">
+
+        <% if(product.customizationFields && product.customizationFields.length){ %>
+
+        <div class="table-responsive">
+
+            <table class="table table-bordered">
+
+                <thead class="table-light">
+
+                    <tr>
+
+                        <th>Name</th>
+
+                        <th>Label</th>
+
+                        <th>Type</th>
+
+                        <th>Required</th>
+
+                        <th>Options</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    <% product.customizationFields.forEach(field=>{ %>
+
+                    <tr>
+
+                        <td>
+
+                            <%= field.name %>
+
+                        </td>
+
+                        <td>
+
+                            <%= field.label %>
+
+                        </td>
+
+                        <td>
+
+                            <%= field.type %>
+
+                        </td>
+
+                        <td>
+
+                            <% if(field.required){ %>
+
+                                <span class="badge bg-success">
+
+                                    Yes
+
+                                </span>
+
+                            <% } else { %>
+
+                                <span class="badge bg-secondary">
+
+                                    No
+
+                                </span>
+
+                            <% } %>
+
+                        </td>
+
+                        <td>
+
+                            <%= field.options ? field.options.join(", ") : "-" %>
+
+                        </td>
+
+                    </tr>
+
+                    <% }) %>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <% } else { %>
+
+        <div class="text-center py-4 text-muted">
+
+            No Customization Fields
+
+        </div>
+
+        <% } %>
+
+    </div>
+
+</div>
+
+<!-- =====================================
+    ACTION BUTTONS
+===================================== -->
+
+<div class="d-flex justify-content-between mb-5">
+
+    <a
+        href="/admin/products"
+        class="btn btn-outline-secondary">
+
+        <i class="bi bi-arrow-left me-2"></i>
+
+        Back
+
+    </a>
+
+    <div class="d-flex gap-2">
+
+        <a
+            href="/admin/products/<%= product._id %>/edit"
+            class="btn btn-warning">
+
+            <i class="bi bi-pencil-square me-2"></i>
+
+            Edit Product
+
+        </a>
+
+        <button
+            class="btn btn-danger"
+            onclick="deleteProduct('<%= product._id %>')">
+
+            <i class="bi bi-trash me-2"></i>
+
+            Delete
+
+        </button>
+
+    </div>
+
+</div>
+
+</section>
+
+</main>
+
+</div>
+
+<script src="/js/products.js"></script>
+
+</body>
+
+</html>

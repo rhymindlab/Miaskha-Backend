@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<%- include("../../partials/head") %>
+
+<body>
+
+<div class="admin-wrapper">
+
+    <!-- Sidebar -->
+    <%- include("../../partials/sidebar") %>
+
+    <main class="admin-main">
+
+        <!-- Header -->
+        <%- include("../../partials/header") %>
+
+        <section class="admin-content">
+
+            <div class="container-fluid">
+
+                <!-- Page Header -->
+
+                <div class="d-flex justify-content-between align-items-center flex-wrap mb-4">
+
+                    <div>
+
+                        <h2 class="fw-bold mb-1">
+
+                            Metal Rates
+
+                        </h2>
+
+                        <p class="text-muted mb-0">
+
+                            Manage all metal rates used for product pricing.
+
+                        </p>
+
+                    </div>
+
+                    <a
+                        href="/admin/metals/add"
+                        class="btn btn-success rounded-3 px-4"
+                    >
+
+                        <i class="bi bi-plus-lg me-2"></i>
+
+                        Add Metal Rate
+
+                    </a>
+
+                </div>
+
+                <!-- Statistics -->
+
+                <div class="row g-4 mb-4">
+
+                    <div class="col-xl-3 col-md-6">
+
+                        <div class="card border-0 shadow-sm rounded-4 h-100">
+
+                            <div class="card-body">
+
+                                <div class="d-flex justify-content-between align-items-center">
+
+                                    <div>
+
+                                        <small class="text-muted">
+
+                                            Total Rates
+
+                                        </small>
+
+                                        <h2 class="fw-bold mt-2 mb-0">
+
+                                            <%= metals.length %>
+
+                                        </h2>
+
+                                    </div>
+
+                                    <div
+                                        class="rounded-circle bg-success bg-opacity-10 d-flex align-items-center justify-content-center"
+                                        style="width:65px;height:65px;"
+                                    >
+
+                                        <i class="bi bi-currency-rupee fs-2 text-success"></i>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- Table Card -->
+
+                <div class="card border-0 shadow-sm rounded-4">
+
+                    <div class="card-header bg-white border-0 p-4">
+
+                        <div class="row align-items-center">
+
+                            <div class="col-lg-6">
+
+                                <h5 class="fw-bold mb-0">
+
+                                    Metal Rate List
+
+                                </h5>
+
+                            </div>
+
+                            <div class="col-lg-6">
+
+                                <input
+                                    id="metalSearch"
+                                    type="text"
+                                    class="form-control"
+                                    placeholder="Search metal..."
+                                >
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="table-responsive">
+
+                        <table class="table table-hover align-middle mb-0">
+
+                            <thead class="table-light">
+
+                                <tr>
+
+                                    <th width="60">#</th>
+
+                                    <th>Metal</th>
+
+                                    <th>Purity</th>
+
+                                    <th>Rate</th>
+
+                                    <th>Currency</th>
+
+                                    <th>Updated</th>
+
+                                    <th width="170" class="text-center">
+
+                                        Actions
+
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+                            <tbody id="metalTable">
+
+                                <% if(metals.length === 0){ %>
+
+                                <tr>
+
+                                    <td colspan="7" class="text-center py-5">
+
+                                        <i class="bi bi-currency-rupee display-4 text-secondary"></i>
+
+                                        <h5 class="mt-3">
+
+                                            No Metal Rates Found
+
+                                        </h5>
+
+                                        <p class="text-muted mb-4">
+
+                                            Add your first metal rate.
+
+                                        </p>
+
+                                        <a
+                                            href="/admin/metals/add"
+                                            class="btn btn-success"
+                                        >
+
+                                            Add Metal Rate
+
+                                        </a>
+
+                                    </td>
+
+                                </tr>
+
+                                <% } %>
+
+                                <% metals.forEach((metal,index)=>{ %>
+
+                                <tr>
+
+                                    <td>
+
+                                        <%= index + 1 %>
+
+                                    </td>
+
+                                    <td>
+
+                                        <strong>
+
+                                            <%= metal.metalType %>
+
+                                        </strong>
+
+                                    </td>
+
+                                    <td>
+
+                                        <span class="badge bg-primary">
+
+                                            <%= metal.purity %>
+
+                                        </span>
+
+                                    </td>
+
+                                    <td>
+
+                                        <strong>
+
+                                            <%= metal.amount %>
+
+                                        </strong>
+
+                                    </td>
+
+                                    <td>
+
+                                        <%= metal.currency %>
+
+                                    </td>
+
+                                    <td>
+
+                                        <%= new Date(metal.updatedAt).toLocaleDateString() %>
+
+                                    </td>
+
+                                    <td>
+                                                                                <div class="d-flex justify-content-center gap-2">
+
+                                            <a
+                                                href="/admin/metals/edit/<%= metal._id %>"
+                                                class="btn btn-warning btn-sm text-white"
+                                                title="Edit Metal Rate"
+                                            >
+
+                                                <i class="bi bi-pencil-square"></i>
+
+                                            </a>
+
+                                            <form
+                                                action="/metal/<%= metal._id %>?_method=DELETE"
+                                                method="POST"
+                                                onsubmit="return confirm('Are you sure you want to delete this metal rate?')"
+                                            >
+
+                                                <button
+                                                    type="submit"
+                                                    class="btn btn-danger btn-sm"
+                                                    title="Delete Metal Rate"
+                                                >
+
+                                                    <i class="bi bi-trash"></i>
+
+                                                </button>
+
+                                            </form>
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+
+                                <% }) %>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- Footer -->
+
+        <%- include("../../partials/footer") %>
+
+    </main>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+
+const searchInput = document.getElementById("metalSearch");
+
+searchInput.addEventListener("keyup", function () {
+
+    const value = this.value.toLowerCase();
+
+    document.querySelectorAll("#metalTable tr").forEach((row) => {
+
+        row.style.display = row.innerText
+            .toLowerCase()
+            .includes(value)
+            ? ""
+            : "none";
+
+    });
+
+});
+
+</script>
+
+</body>
+
+</html>

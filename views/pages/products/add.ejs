@@ -1,0 +1,1494 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<%- include("../../partials/head",{
+title:"Add Product"
+}) %>
+
+<body>
+
+<div class="admin-wrapper">
+
+    <!-- Sidebar -->
+
+    <%- include("../../partials/sidebar") %>
+
+    <!-- Main -->
+
+    <main class="admin-main">
+
+        <!-- Header -->
+
+        <%- include("../../partials/header",{
+        pageTitle:"Add Product"
+        }) %>
+
+        <section class="admin-content">
+
+            <!-- ===========================
+                 Sticky Page Header
+            ============================ -->
+
+            <div class="page-header sticky-top bg-white py-3 mb-4 border-bottom">
+
+                <div class="d-flex justify-content-between align-items-center">
+
+                    <div>
+
+                        <h2 class="fw-bold mb-1">
+
+                            Add Product
+
+                        </h2>
+
+                        <p class="text-muted mb-0">
+
+                            Create a new jewellery product.
+
+                        </p>
+
+                    </div>
+
+                    <div class="d-flex gap-2">
+
+                        <button
+                            class="btn btn-outline-secondary"
+                            type="button">
+
+                            Save Draft
+
+                        </button>
+
+                        <button
+                            class="btn btn-success"
+                            type="submit"
+                            form="productForm">
+
+                            <i class="bi bi-check-circle me-2"></i>
+
+                            Publish Product
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- ===========================
+                 Form
+            ============================ -->
+
+            <form
+                id="productForm"
+                action="admin/products/add"
+                method="POST">
+
+                <!-- ===================================
+                     General Information
+                ==================================== -->
+
+                <div class="card shadow-sm border-0 mb-4">
+
+                    <div class="card-header bg-white">
+
+                        <h5 class="mb-0">
+
+                            <i class="bi bi-box me-2 text-success"></i>
+
+                            General Information
+
+                        </h5>
+
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="row g-4">
+
+                            <div class="col-lg-6">
+
+                                <label class="form-label">
+
+                                    Product Title
+
+                                </label>
+
+                                <input
+                                    class="form-control"
+                                    type="text"
+                                    name="title"
+                                    required>
+
+                            </div>
+
+                            <div class="col-lg-6">
+
+                                <label class="form-label">
+
+                                    SKU
+
+                                </label>
+
+                                <input
+                                    class="form-control"
+                                    type="text"
+                                    name="sku"
+                                    required>
+
+                            </div>
+
+                            <div class="col-lg-6">
+
+                                <label class="form-label">
+
+                                    Product Type
+
+                                </label>
+
+                                <select
+                                    class="form-select"
+                                    name="productType"
+                                    required>
+
+                                    <option value="">
+
+                                        Select Product
+
+                                    </option>
+
+                                    <option value="Ring">Ring</option>
+
+                                    <option value="Pendant">Pendant</option>
+
+                                    <option value="Chain">Chain</option>
+
+                                    <option value="Bracelet">Bracelet</option>
+
+                                    <option value="Bangle">Bangle</option>
+
+                                    <option value="Necklace">Necklace</option>
+
+                                    <option value="Earrings">Earrings</option>
+
+                                    <option value="Coin">Coin</option>
+
+                                    <option value="Loose Diamond">
+
+                                        Loose Diamond
+
+                                    </option>
+
+                                    <option value="Gemstone">
+
+                                        Gemstone
+
+                                    </option>
+
+                                    <option value="Other">
+
+                                        Other
+
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                            <div class="col-lg-6">
+
+                                <label class="form-label">
+
+                                    Category
+
+                                </label>
+
+                                <select
+                                    class="form-select"
+                                    name="category"
+                                    required>
+
+                                    <option value="">
+
+                                        Select Category
+
+                                    </option>
+
+                                    <% categories.forEach(category=>{ %>
+
+                                        <option value="<%= category._id %>">
+
+                                            <%= category.name %>
+
+                                        </option>
+
+                                    <% }) %>
+
+                                </select>
+
+                            </div>
+
+                            <div class="col-12">
+
+                                <label class="form-label">
+
+                                    Collections
+
+                                </label>
+
+                                <select
+                                    class="form-select"
+                                    multiple
+                                    name="collections">
+
+                                    <% collections.forEach(collection=>{ %>
+
+                                        <option value="<%= collection._id %>">
+
+                                            <%= collection.name %>
+
+                                        </option>
+
+                                    <% }) %>
+
+                                </select>
+
+                                <small class="text-muted">
+
+                                    Hold Ctrl (Windows) or Cmd (Mac)
+                                    to select multiple collections.
+
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- ===================================
+                     PART 2 STARTS HERE
+                ==================================== -->
+
+                <!-- ===================================
+     Pricing & Inventory
+=================================== -->
+
+<div class="card shadow-sm border-0 mb-4">
+
+    <div class="card-header bg-white">
+
+        <h5 class="mb-0">
+
+            <i class="bi bi-currency-rupee me-2 text-success"></i>
+
+            Pricing & Inventory
+
+        </h5>
+
+    </div>
+
+    <div class="card-body">
+
+        <div class="row g-4">
+
+            <div class="col-lg-3">
+
+                <label class="form-label">
+
+                    Pricing Mode
+
+                </label>
+
+                <select
+                    class="form-select"
+                    name="pricingMode">
+
+                    <option value="dynamic">
+
+                        Dynamic
+
+                    </option>
+
+                    <option value="manual">
+
+                        Manual
+
+                    </option>
+
+                    <option value="fixed">
+
+                        Fixed
+
+                    </option>
+
+                </select>
+
+            </div>
+
+            <div class="col-lg-3">
+
+                <label class="form-label">
+
+                    Fixed Price
+
+                </label>
+
+                <input
+                    class="form-control"
+                    type="number"
+                    step="0.01"
+                    name="fixedPrice"
+                    value="0">
+
+            </div>
+
+            <div class="col-lg-3">
+
+                <label class="form-label">
+
+                    MRP
+
+                </label>
+
+                <input
+                    class="form-control"
+                    type="number"
+                    step="0.01"
+                    name="mrp"
+                    required>
+
+            </div>
+
+            <div class="col-lg-3">
+
+                <label class="form-label">
+
+                    Sale Price
+
+                </label>
+
+                <input
+                    class="form-control"
+                    type="number"
+                    step="0.01"
+                    name="salePrice"
+                    required>
+
+            </div>
+
+            <div class="col-lg-3">
+
+                <label class="form-label">
+
+                    Stock
+
+                </label>
+
+                <input
+                    class="form-control"
+                    type="number"
+                    name="stock"
+                    value="0">
+
+            </div>
+
+            <div class="col-lg-3">
+
+                <label class="form-label">
+
+                    Making Charge Type
+
+                </label>
+
+                <select
+                    class="form-select"
+                    name="makingChargesType">
+
+                    <option value="fixed">
+
+                        Fixed
+
+                    </option>
+
+                    <option value="perGram">
+
+                        Per Gram
+
+                    </option>
+
+                    <option value="percentage">
+
+                        Percentage
+
+                    </option>
+
+                </select>
+
+            </div>
+
+            <div class="col-lg-3">
+
+                <label class="form-label">
+
+                    Making Charge Value
+
+                </label>
+
+                <input
+                    class="form-control"
+                    type="number"
+                    step="0.01"
+                    name="makingChargesValue"
+                    value="0">
+
+            </div>
+
+            <div class="col-lg-3">
+
+                <label class="form-label">
+
+                    Pricing Options
+
+                </label>
+
+                <div class="border rounded p-3">
+
+                    <div class="form-check">
+
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            name="dynamicMetal"
+                            checked>
+
+                        <label class="form-check-label">
+
+                            Dynamic Metal
+
+                        </label>
+
+                    </div>
+
+                    <div class="form-check">
+
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            name="dynamicStone">
+
+                        <label class="form-check-label">
+
+                            Dynamic Stone
+
+                        </label>
+
+                    </div>
+
+                    <div class="form-check">
+
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            name="dynamicMakingCharges">
+
+                        <label class="form-check-label">
+
+                            Dynamic Making Charges
+
+                        </label>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ===================================
+     Metal Information
+=================================== -->
+
+<div class="card shadow-sm border-0 mb-4">
+
+    <div class="card-header bg-white">
+
+        <h5 class="mb-0">
+
+            <i class="bi bi-gem me-2 text-success"></i>
+
+            Metal Information
+
+        </h5>
+
+    </div>
+
+    <div class="card-body">
+
+        <div class="row g-4">
+
+            <div class="col-lg-3">
+
+                <label class="form-label">
+
+                    Metal Type
+
+                </label>
+
+                <select
+                    class="form-select"
+                    name="metalType">
+
+                    <option value="">
+
+                        Select Metal
+
+                    </option>
+
+                    <option value="Gold">
+
+                        Gold
+
+                    </option>
+
+                    <option value="Silver">
+
+                        Silver
+
+                    </option>
+
+                    <option value="Platinum">
+
+                        Platinum
+
+                    </option>
+
+                </select>
+
+            </div>
+
+            <div class="col-lg-3">
+
+                <label class="form-label">
+
+                    Purity
+
+                </label>
+
+                <select
+                    class="form-select"
+                    name="purity">
+
+                    <option value="">
+
+                        Select Purity
+
+                    </option>
+
+                    <option>24K</option>
+
+                    <option>22K</option>
+
+                    <option>18K</option>
+
+                    <option>14K</option>
+
+                    <option>999</option>
+
+                    <option>925</option>
+
+                </select>
+
+            </div>
+
+            <div class="col-lg-3">
+
+                <label class="form-label">
+
+                    Metal Weight (gm)
+
+                </label>
+
+                <input
+                    class="form-control"
+                    type="number"
+                    step="0.001"
+                    name="metalWeight">
+
+            </div>
+
+            <div class="col-lg-3">
+
+                <label class="form-label">
+
+                    Product Weight (gm)
+
+                </label>
+
+                <input
+                    class="form-control"
+                    type="number"
+                    step="0.001"
+                    name="productWeight">
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ===================================
+     PART 3 STARTS HERE
+=================================== -->
+
+<!-- ===================================
+     Shipping Details
+=================================== -->
+
+<div class="card shadow-sm border-0 mb-4">
+
+    <div class="card-header bg-white">
+
+        <h5 class="mb-0">
+
+            <i class="bi bi-truck me-2 text-success"></i>
+
+            Shipping Package
+
+        </h5>
+
+    </div>
+
+    <div class="card-body">
+
+        <p class="text-muted mb-4">
+
+            Enter the final packed parcel dimensions used for Shiprocket.
+
+        </p>
+
+        <div class="row g-4">
+
+            <div class="col-lg-3">
+
+                <label class="form-label">
+
+                    Package Weight (kg)
+
+                </label>
+
+                <input
+                    class="form-control"
+                    type="number"
+                    step="0.01"
+                    min="0.01"
+                    value="0.5"
+                    name="shippingWeight"
+                    required>
+
+            </div>
+
+            <div class="col-lg-3">
+
+                <label class="form-label">
+
+                    Length (cm)
+
+                </label>
+
+                <input
+                    class="form-control"
+                    type="number"
+                    step="0.1"
+                    min="0.1"
+                    value="15"
+                    name="shippingLength"
+                    required>
+
+            </div>
+
+            <div class="col-lg-3">
+
+                <label class="form-label">
+
+                    Breadth (cm)
+
+                </label>
+
+                <input
+                    class="form-control"
+                    type="number"
+                    step="0.1"
+                    min="0.1"
+                    value="12"
+                    name="shippingBreadth"
+                    required>
+
+            </div>
+
+            <div class="col-lg-3">
+
+                <label class="form-label">
+
+                    Height (cm)
+
+                </label>
+
+                <input
+                    class="form-control"
+                    type="number"
+                    step="0.1"
+                    min="0.1"
+                    value="6"
+                    name="shippingHeight"
+                    required>
+
+            </div>
+
+        </div>
+
+        <div class="alert alert-light border mt-4 mb-0">
+
+            <strong>Note:</strong>
+
+            Package Weight is different from Product Weight and Metal Weight.
+            Use the weight after the jewellery is packed.
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ===================================
+     Product Description
+=================================== -->
+
+<div class="card shadow-sm border-0 mb-4">
+
+    <div class="card-header bg-white">
+
+        <h5 class="mb-0">
+
+            <i class="bi bi-card-text me-2 text-success"></i>
+
+            Product Description
+
+        </h5>
+
+    </div>
+
+    <div class="card-body">
+
+        <div class="mb-4">
+
+            <label class="form-label">
+
+                Short Description
+
+            </label>
+
+            <textarea
+                class="form-control"
+                rows="3"
+                name="shortDescription"></textarea>
+
+        </div>
+
+        <div>
+
+            <label class="form-label">
+
+                Full Description
+
+            </label>
+
+            <textarea
+                class="form-control"
+                rows="8"
+                name="description"></textarea>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ===================================
+     PART 4 STARTS HERE
+=================================== -->
+<!-- ===================================
+     Media
+=================================== -->
+
+<div class="row g-4 mb-4">
+
+    <!-- Images -->
+
+    <div class="col-lg-6">
+
+        <div class="card shadow-sm border-0 h-100">
+
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+
+                <h5 class="mb-0">
+
+                    <i class="bi bi-images me-2 text-success"></i>
+
+                    Product Images
+
+                </h5>
+
+                <button
+                    type="button"
+                    class="btn btn-sm btn-success"
+                    onclick="addImageField()">
+
+                    <i class="bi bi-plus-lg"></i>
+
+                    Add Image
+
+                </button>
+
+            </div>
+
+            <div class="card-body">
+
+                <p class="text-muted small">
+
+                    Add image URLs. The first image will be used as the product thumbnail.
+
+                </p>
+
+                <div id="imageContainer">
+
+                    <div class="input-group mb-3">
+
+                        <input
+                            class="form-control"
+                            name="images"
+                            placeholder="https://example.com/image.jpg">
+
+                        <button
+                            type="button"
+                            class="btn btn-outline-danger"
+                            disabled>
+
+                            Remove
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Videos -->
+
+    <div class="col-lg-6">
+
+        <div class="card shadow-sm border-0 h-100">
+
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+
+                <h5 class="mb-0">
+
+                    <i class="bi bi-camera-video me-2 text-success"></i>
+
+                    Product Videos
+
+                </h5>
+
+                <button
+                    type="button"
+                    class="btn btn-sm btn-success"
+                    onclick="addVideoField()">
+
+                    <i class="bi bi-plus-lg"></i>
+
+                    Add Video
+
+                </button>
+
+            </div>
+
+            <div class="card-body">
+
+                <p class="text-muted small">
+
+                    Add promotional or product showcase video URLs.
+
+                </p>
+
+                <div id="videoContainer">
+
+                    <div class="input-group mb-3">
+
+                        <input
+                            class="form-control"
+                            name="videos"
+                            placeholder="https://example.com/video.mp4">
+
+                        <button
+                            type="button"
+                            class="btn btn-outline-danger"
+                            disabled>
+
+                            Remove
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ===================================
+     PART 5 STARTS HERE
+=================================== -->
+
+<!-- ===================================
+     Stone Details
+=================================== -->
+
+<div class="card shadow-sm border-0 mb-4">
+
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+
+        <h5 class="mb-0">
+
+            <i class="bi bi-gem me-2 text-success"></i>
+
+            Stone Details
+
+        </h5>
+
+        <button
+            type="button"
+            class="btn btn-success btn-sm"
+            onclick="addStone()">
+
+            <i class="bi bi-plus-lg"></i>
+
+            Add Stone
+
+        </button>
+
+    </div>
+
+    <div class="card-body">
+
+        <div id="stoneContainer">
+
+            <div class="card border mb-3">
+
+                <div class="card-body">
+
+                    <div class="row g-3">
+
+                        <div class="col-lg-4">
+
+                            <label class="form-label">
+
+                                Stone Type
+
+                            </label>
+
+                            <input
+                                class="form-control"
+                                name="stoneType[]"
+                                placeholder="Diamond">
+
+                        </div>
+
+                        <div class="col-lg-4">
+
+                            <label class="form-label">
+
+                                Shape
+
+                            </label>
+
+                            <input
+                                class="form-control"
+                                name="stoneShape[]"
+                                placeholder="Round">
+
+                        </div>
+
+                        <div class="col-lg-4">
+
+                            <label class="form-label">
+
+                                Quantity
+
+                            </label>
+
+                            <input
+                                class="form-control"
+                                type="number"
+                                name="stoneQuantity[]"
+                                value="1">
+
+                        </div>
+
+                        <div class="col-lg-4">
+
+                            <label class="form-label">
+
+                                Weight (ct)
+
+                            </label>
+
+                            <input
+                                class="form-control"
+                                type="number"
+                                step="0.001"
+                                name="stoneWeight[]">
+
+                        </div>
+
+                        <div class="col-lg-4">
+
+                            <label class="form-label">
+
+                                Price
+
+                            </label>
+
+                            <input
+                                class="form-control"
+                                type="number"
+                                step="0.01"
+                                name="stonePrice[]">
+
+                        </div>
+
+                        <div class="col-lg-4">
+
+                            <label class="form-label">
+
+                                Pricing Type
+
+                            </label>
+
+                            <select
+                                class="form-select"
+                                name="stonePricingType[]">
+
+                                <option value="fixed">
+
+                                    Fixed
+
+                                </option>
+
+                                <option value="perCarat">
+
+                                    Per Carat
+
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                        <div class="col-lg-4">
+
+                            <label class="form-label">
+
+                                Color
+
+                            </label>
+
+                            <input
+                                class="form-control"
+                                name="stoneColor[]">
+
+                        </div>
+
+                        <div class="col-lg-4">
+
+                            <label class="form-label">
+
+                                Clarity
+
+                            </label>
+
+                            <input
+                                class="form-control"
+                                name="stoneClarity[]">
+
+                        </div>
+
+                        <div class="col-lg-4">
+
+                            <label class="form-label">
+
+                                Size Range
+
+                            </label>
+
+                            <input
+                                class="form-control"
+                                name="stoneSizeRange[]">
+
+                        </div>
+
+                        <div class="col-12 text-end">
+
+                            <button
+                                type="button"
+                                class="btn btn-outline-danger removeStone">
+
+                                Remove Stone
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ===================================
+     Specifications
+=================================== -->
+
+<div class="card shadow-sm border-0 mb-4">
+
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+
+        <h5 class="mb-0">
+
+            <i class="bi bi-card-list me-2 text-success"></i>
+
+            Product Specifications
+
+        </h5>
+
+        <button
+            type="button"
+            class="btn btn-success btn-sm"
+            onclick="addSpecification()">
+
+            <i class="bi bi-plus-lg"></i>
+
+            Add Specification
+
+        </button>
+
+    </div>
+
+    <div class="card-body">
+
+        <div id="specificationContainer">
+
+            <div class="row g-3 specification-row">
+
+                <div class="col-md-5">
+
+                    <input
+                        class="form-control"
+                        name="specificationKey[]"
+                        placeholder="Specification Name">
+
+                </div>
+
+                <div class="col-md-5">
+
+                    <input
+                        class="form-control"
+                        name="specificationValue[]"
+                        placeholder="Specification Value">
+
+                </div>
+
+                <div class="col-md-2">
+
+                    <button
+                        type="button"
+                        class="btn btn-outline-danger w-100 removeSpecification">
+
+                        Remove
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ===================================
+     PART 6 STARTS HERE
+=================================== -->
+
+<!-- ===================================
+     SEO
+=================================== -->
+
+<div class="card shadow-sm border-0 mb-4">
+
+    <div class="card-header bg-white">
+
+        <h5 class="mb-0">
+
+            <i class="bi bi-search me-2 text-success"></i>
+
+            SEO Settings
+
+        </h5>
+
+    </div>
+
+    <div class="card-body">
+
+        <div class="row g-4">
+
+            <div class="col-12">
+
+                <label class="form-label">
+
+                    SEO Title
+
+                </label>
+
+                <input
+                    class="form-control"
+                    name="seoTitle">
+
+            </div>
+
+            <div class="col-12">
+
+                <label class="form-label">
+
+                    SEO Description
+
+                </label>
+
+                <textarea
+                    class="form-control"
+                    rows="4"
+                    name="seoDescription"></textarea>
+
+            </div>
+
+            <div class="col-12">
+
+                <label class="form-label">
+
+                    SEO Keywords
+
+                </label>
+
+                <input
+                    class="form-control"
+                    name="seoKeywords"
+                    placeholder="diamond,gold,ring,jewellery">
+
+                <small class="text-muted">
+
+                    Separate keywords using commas.
+
+                </small>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ===================================
+     Product Status
+=================================== -->
+
+<div class="card shadow-sm border-0 mb-4">
+
+    <div class="card-header bg-white">
+
+        <h5 class="mb-0">
+
+            <i class="bi bi-toggle-on me-2 text-success"></i>
+
+            Product Status
+
+        </h5>
+
+    </div>
+
+    <div class="card-body">
+
+        <div class="row">
+
+            <div class="col-md-3">
+
+                <div class="form-check form-switch">
+
+                    <input
+                        class="form-check-input"
+                        type="checkbox"
+                        name="isFeatured">
+
+                    <label class="form-check-label">
+
+                        Featured Product
+
+                    </label>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <div class="form-check form-switch">
+
+                    <input
+                        class="form-check-input"
+                        type="checkbox"
+                        name="isActive"
+                        checked>
+
+                    <label class="form-check-label">
+
+                        Active Product
+
+                    </label>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ===================================
+     Customization Fields
+=================================== -->
+
+<div class="card shadow-sm border-0 mb-4">
+
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+
+        <h5 class="mb-0">
+
+            <i class="bi bi-sliders me-2 text-success"></i>
+
+            Customization Fields
+
+        </h5>
+
+        <button
+            type="button"
+            class="btn btn-success btn-sm"
+            onclick="addCustomizationField()">
+
+            <i class="bi bi-plus-lg"></i>
+
+            Add Field
+
+        </button>
+
+    </div>
+
+    <div class="card-body">
+
+        <div id="customizationContainer">
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ===================================
+     Bottom Action Bar
+=================================== -->
+
+<div class="card shadow-sm border-0">
+
+    <div class="card-body">
+
+        <div class="d-flex justify-content-end gap-3">
+
+            <button
+                type="reset"
+                class="btn btn-outline-secondary btn-lg">
+
+                Reset
+
+            </button>
+
+            <button
+                type="submit"
+                class="btn btn-success btn-lg px-5">
+
+                <i class="bi bi-check-circle me-2"></i>
+
+                Publish Product
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+</form>
+
+</section>
+
+</main>
+
+</div>
+
+<!-- ===================================
+     YOUR EXISTING JAVASCRIPT
+=================================== -->
+
+<script src="/js/add-product.js"></script>
+
+</body>
+
+</html>

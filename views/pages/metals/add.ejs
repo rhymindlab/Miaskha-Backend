@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<%- include("../../partials/head") %>
+
+<body>
+
+<div class="admin-wrapper">
+
+    <!-- Sidebar -->
+    <%- include("../../partials/sidebar") %>
+
+    <main class="admin-main">
+
+        <!-- Header -->
+        <%- include("../../partials/header") %>
+
+        <section class="admin-content">
+
+            <div class="container-fluid">
+
+                <!-- Page Header -->
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+
+                    <div>
+
+                        <h2 class="fw-bold mb-1">
+
+                            Add Metal Rate
+
+                        </h2>
+
+                        <p class="text-muted mb-0">
+
+                            Add a new metal rate used for product pricing.
+
+                        </p>
+
+                    </div>
+
+                    <a
+                        href="/admin/metals"
+                        class="btn btn-light border rounded-3 px-4"
+                    >
+
+                        <i class="bi bi-arrow-left me-2"></i>
+
+                        Back
+
+                    </a>
+
+                </div>
+
+                <form
+                    action="/metal"
+                    method="POST"
+                >
+
+                    <div class="row g-4">
+
+                        <!-- Left -->
+
+                        <div class="col-lg-8">
+
+                            <div class="card shadow-sm border-0 rounded-4">
+
+                                <div class="card-body p-4">
+
+                                    <h5 class="fw-bold mb-4">
+
+                                        Metal Information
+
+                                    </h5>
+
+                                    <!-- Metal Type -->
+
+                                    <div class="mb-4">
+
+                                        <label class="form-label fw-semibold">
+
+                                            Metal Type
+
+                                        </label>
+
+                                        <select
+                                            class="form-select"
+                                            name="metalType"
+                                            required
+                                        >
+
+                                            <option value="">
+
+                                                Select Metal
+
+                                            </option>
+
+                                            <option value="Gold">
+
+                                                Gold
+
+                                            </option>
+
+                                            <option value="Silver">
+
+                                                Silver
+
+                                            </option>
+
+                                            <option value="Platinum">
+
+                                                Platinum
+
+                                            </option>
+
+                                        </select>
+
+                                    </div>
+
+                                    <!-- Purity -->
+
+                                    <div class="mb-4">
+
+                                        <label class="form-label fw-semibold">
+
+                                            Purity
+
+                                        </label>
+
+                                        <select
+                                            class="form-select"
+                                            name="purity"
+                                            required
+                                        >
+
+                                            <option value="">
+
+                                                Select Purity
+
+                                            </option>
+
+                                            <option value="24K">24K</option>
+
+                                            <option value="22K">22K</option>
+
+                                            <option value="18K">18K</option>
+
+                                            <option value="14K">14K</option>
+
+                                            <option value="999">999</option>
+
+                                            <option value="925">925</option>
+
+                                            <option value="950">950</option>
+
+                                        </select>
+
+                                    </div>
+
+                                    <!-- Rate -->
+
+                                    <div class="mb-4">
+
+                                        <label class="form-label fw-semibold">
+
+                                            Rate
+
+                                        </label>
+
+                                        <input
+                                            type="number"
+                                            name="amount"
+                                            class="form-control"
+                                            placeholder="Enter metal rate"
+                                            required
+                                        >
+
+                                    </div>
+
+                                    <!-- Currency -->
+
+                                    <div class="mb-0">
+
+                                        <label class="form-label fw-semibold">
+
+                                            Currency
+
+                                        </label>
+
+                                        <select
+                                            class="form-select"
+                                            name="currency"
+                                        >
+
+                                            <option value="INR">
+
+                                                INR
+
+                                            </option>
+
+                                            <option value="USD">
+
+                                                USD
+
+                                            </option>
+
+                                            <option value="AED">
+
+                                                AED
+
+                                            </option>
+
+                                        </select>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <!-- Right -->
+
+                        <div class="col-lg-4">
+
+                            <div class="card shadow-sm border-0 rounded-4">
+
+                                <div class="card-body p-4">
+
+                                    <h5 class="fw-bold mb-3">
+
+                                        Publish
+
+                                    </h5>
+
+                                    <p class="text-muted small">
+
+                                        Verify the metal rate before saving.
+
+                                    </p>
+
+                                    <div class="d-grid gap-2">
+                                                                            <div class="d-grid gap-2">
+
+                                        <button
+                                            type="submit"
+                                            class="btn btn-success btn-lg"
+                                        >
+
+                                            <i class="bi bi-check-circle me-2"></i>
+
+                                            Save Metal Rate
+
+                                        </button>
+
+                                        <a
+                                            href="/admin/metals"
+                                            class="btn btn-outline-secondary"
+                                        >
+
+                                            Cancel
+
+                                        </a>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </section>
+
+        <!-- Footer -->
+
+        <%- include("../../partials/footer") %>
+
+    </main>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+
+const metalType = document.querySelector("select[name='metalType']");
+const purity = document.querySelector("select[name='purity']");
+
+const purityOptions = {
+
+    Gold: [
+        "24K",
+        "22K",
+        "18K",
+        "14K"
+    ],
+
+    Silver: [
+        "999",
+        "925"
+    ],
+
+    Platinum: [
+        "950"
+    ]
+
+};
+
+metalType.addEventListener("change", () => {
+
+    purity.innerHTML = '<option value="">Select Purity</option>';
+
+    const options = purityOptions[metalType.value] || [];
+
+    options.forEach(value => {
+
+        const option = document.createElement("option");
+
+        option.value = value;
+        option.textContent = value;
+
+        purity.appendChild(option);
+
+    });
+
+});
+
+</script>
+
+</body>
+
+</html>

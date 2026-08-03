@@ -137,9 +137,9 @@ const usersSchema = new Schema(
 
 /* -------------------- Password Hash -------------------- */
 
-usersSchema.pre("save", function (next) {
+usersSchema.pre("save", function () {
     if (!this.isModified("password")) {
-        return next();
+        return;
     }
 
     const salt = randomBytes(16).toString("hex");
@@ -150,8 +150,6 @@ usersSchema.pre("save", function (next) {
 
     this.salt = salt;
     this.password = hashedPassword;
-
-    next();
 });
 
 /* -------------------- Login -------------------- */

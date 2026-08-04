@@ -256,13 +256,15 @@ const productSchema = new mongoose.Schema(
 
     mrp: {
       type: Number,
-      required: true,
       default: 0,
     },
 
     salePrice: {
       type: Number,
-      required: true,
+      default: 0,
+    },
+    productDiscount: {
+      type: Number,
       default: 0,
     },
 
@@ -277,6 +279,24 @@ const productSchema = new mongoose.Schema(
         enum: ["fixed", "perGram", "percentage"],
         default: "fixed",
       },
+
+      discount: {
+        value: {
+          type: Number,
+          default: 0,
+        },
+        type: {
+          type: String,
+          enum: ["fixed", "percentage"],
+          default: "fixed",
+        },
+      },
+
+    },
+
+    stoneDiscount:{
+        type: Number,
+        default: 0,
     },
 
     /* ========================================================

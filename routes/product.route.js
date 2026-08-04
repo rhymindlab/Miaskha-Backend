@@ -24,6 +24,7 @@ const router = Router();
 /* ======================================================
     ADMIN ROUTES
 ====================================================== */
+router.post("/add", restrictToAdminOnly, handleAddProduct);
 
 router.get("/details/:id", handleGetProduct);
 
@@ -202,7 +203,7 @@ router.get("/", async (req, res) => {
 
         let query = Product.find(filter)
             .slice("images", 1)
-            .select("_id title metalType purity pricing metalWeight stones.price stones.Weight makingCharges salePrice mrp")
+            .select("_id title metalType purity pricing metalWeight stones.price stones.Weight makingCharges salePrice stoneDiscount productDiscount mrp")
 
             .populate("category", "name slug")
 

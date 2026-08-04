@@ -82,7 +82,7 @@ title:"Add Product"
 
             <form
                 id="productForm"
-                action="admin/products/add"
+                action="/product/add"
                 method="POST">
 
                 <!-- ===================================
@@ -358,8 +358,7 @@ title:"Add Product"
                     class="form-control"
                     type="number"
                     step="0.01"
-                    name="mrp"
-                    required>
+                    name="mrp">
 
             </div>
 
@@ -375,8 +374,23 @@ title:"Add Product"
                     class="form-control"
                     type="number"
                     step="0.01"
-                    name="salePrice"
-                    required>
+                    name="salePrice">
+
+            </div>
+
+            <div class="col-lg-3">
+
+                <label class="form-label">
+
+                    Product Discount
+
+                </label>
+
+                <input
+                    class="form-control"
+                    type="number"
+                    step="0.01"
+                    name="productDiscount">
 
             </div>
 
@@ -443,6 +457,68 @@ title:"Add Product"
                     type="number"
                     step="0.01"
                     name="makingChargesValue"
+                    value="0">
+
+            </div>
+
+            <div class="col-lg-3">
+
+                <label class="form-label">
+
+                    Making Charge Discount Type
+
+                </label>
+
+                <select
+                    class="form-select"
+                    name="makingChargesDiscountType">
+
+                    <option value="fixed">
+
+                        Fixed
+
+                    </option>
+
+                    <option value="percentage">
+
+                        Percentage
+
+                    </option>
+
+                </select>
+
+            </div>
+
+            <div class="col-lg-3">
+
+                <label class="form-label">
+
+                    Making Charge Discount
+
+                </label>
+
+                <input
+                    class="form-control"
+                    type="number"
+                    step="0.01"
+                    name="makingChargesDiscount"
+                    value="0">
+
+            </div>
+
+            <div class="col-lg-3">
+
+                <label class="form-label">
+
+                    Stone Discount
+
+                </label>
+
+                <input
+                    class="form-control"
+                    type="number"
+                    step="0.01"
+                    name="stoneDiscount"
                     value="0">
 
             </div>

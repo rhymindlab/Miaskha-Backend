@@ -236,6 +236,10 @@ function buildMakingCharges(body) {
         "perGram",
         "percentage"
     ];
+    const discountAllowedTypes = [
+        "fixed",
+        "percentage"
+    ];
 
     return {
 
@@ -244,8 +248,17 @@ function buildMakingCharges(body) {
 
         type:
             allowedTypes.includes(body.makingChargesType)
-                ? body.makingChargesType
-                : "fixed"
+                ? body.makingChargesType : "fixed",
+
+        discount:
+            {
+                value: Number(body.makingChargesDiscount) || 0,
+                type:
+                    discountAllowedTypes.includes(body.makingChargesDiscountType)
+                        ? body.makingChargesDiscountType : "fixed",
+
+            }
+        
 
     };
 
@@ -266,6 +279,8 @@ async function handleAddProduct(req, res) {
 
             mrp,
             salePrice,
+            productDiscount,
+            stoneDiscount,
             stock,
 
             productWeight,
@@ -342,17 +357,13 @@ async function handleAddProduct(req, res) {
             specificationValue
         );
 
-        const formattedCustomizationFields =
-            buildCustomizationFields(customizationFields);
+        const formattedCustomizationFields = buildCustomizationFields(customizationFields);
 
-        const formattedSeoKeywords =
-            buildSeoKeywords(seoKeywords);
+        const formattedSeoKeywords = buildSeoKeywords(seoKeywords);
 
-        const pricing =
-            buildPricing(req.body);
+        const pricing = buildPricing(req.body);
 
-        const makingCharges =
-            buildMakingCharges(req.body);
+        const makingCharges = buildMakingCharges(req.body);
 
         /* ==========================================
            SHIPPING / SHIPROCKET PACKAGE
@@ -406,6 +417,9 @@ async function handleAddProduct(req, res) {
             mrp: Number(mrp) || 0,
 
             salePrice: Number(salePrice) || 0,
+
+            productDiscount: Number(productDiscount) || 0,
+            stoneDiscount: Number(stoneDiscount) || 0,
 
             stock: Number(stock) || 0,
 
@@ -500,14 +514,10 @@ async function handleAddProduct(req, res) {
                     : isActive === "on",
         });
 
-        console.log(
-            `Product created successfully: ${product.title}`
+        console.log(`Product created successfully: ${product.title}`
         );
 
-        console.log(
-            "Shipping package:",
-            product.shipping
-        );
+        console.log("Shipping package:", product.shipping);
 
         return res.redirect("/");
     } catch (error) {
@@ -617,6 +627,8 @@ async function handleProductUpdation(req, res) {
             mrp,
             salePrice,
             stock,
+            productDiscount,
+            stoneDiscount,
 
             productWeight,
             metalWeight,
@@ -720,6 +732,9 @@ async function handleProductUpdation(req, res) {
                 mrp: Number(mrp) || 0,
 
                 salePrice: Number(salePrice) || 0,
+                
+                productDiscount: Number(productDiscount) || 0,
+                stoneDiscount: Number(stoneDiscount) || 0,
 
                 stock: Number(stock) || 0,
 
@@ -794,9 +809,7 @@ async function handleProductUpdation(req, res) {
 
         );
 
-        console.log(
-            `Product updated successfully: ${updatedProduct.title}`
-        );
+        console.log(`Product updated successfully: ${updatedProduct.title}`);
 
         return res.redirect("/");
 
@@ -865,7 +878,7 @@ async function handleGetProduct(req, res) {
 
 
         const product = await Product.findById(req.params.id)
-            .select("_id title metalType purity images pricing metalWeight stones makingCharges salePrice mrp customizationFields")
+            .select("_id title productType metalType purity images pricing metalWeight stones makingCharges salePrice mrp productDiscount stoneDiscount customizationFields")
             .lean();
 
         return res.json(product);

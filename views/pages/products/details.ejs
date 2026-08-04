@@ -281,7 +281,7 @@ PART 2 STARTS HERE
 
                 <p>
 
-                    <%= product.pricingMode || "-" %>
+                    <%= product.pricing.mode || "-" %>
 
                 </p>
 
@@ -314,6 +314,22 @@ PART 2 STARTS HERE
                 <p class="text-success fw-bold">
 
                     ₹ <%= product.salePrice %>
+
+                </p>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <strong>
+
+                    Product Discount
+
+                </strong>
+
+                <p>
+
+                    <%= product.productDiscount || 0 %>
 
                 </p>
 
@@ -361,7 +377,7 @@ PART 2 STARTS HERE
 
                 <p>
 
-                    <%= product.makingChargesType || "-" %>
+                    <%= product.makingCharges.type || "-" %>
 
                 </p>
 
@@ -377,7 +393,55 @@ PART 2 STARTS HERE
 
                 <p>
 
-                    <%= product.makingChargesValue || 0 %>
+                    <%= product.makingCharges.value || 0 %>
+
+                </p>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <strong>
+
+                    Making Charge Discount Type
+
+                </strong>
+
+                <p>
+
+                    <%= product.makingCharges.discount.type || 0 %>
+
+                </p>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <strong>
+
+                    Making Charge Discount
+
+                </strong>
+
+                <p>
+
+                    <%= product.makingCharges.discount.value || 0 %>
+
+                </p>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <strong>
+
+                    Stone Discount
+
+                </strong>
+
+                <p>
+
+                    <%= product.stoneDiscount || 0 %>
 
                 </p>
 
@@ -393,7 +457,7 @@ PART 2 STARTS HERE
 
                 <p>
 
-                    <% if(product.dynamicMetal){ %>
+                    <% if(product.pricing.dynamicMetal){ %>
 
                         <span class="badge bg-success">
 
@@ -403,7 +467,7 @@ PART 2 STARTS HERE
 
                     <% } %>
 
-                    <% if(product.dynamicStone){ %>
+                    <% if(product.pricing.dynamicStone){ %>
 
                         <span class="badge bg-primary">
 
@@ -413,7 +477,7 @@ PART 2 STARTS HERE
 
                     <% } %>
 
-                    <% if(product.dynamicMakingCharges){ %>
+                    <% if(product.pricing.dynamicMakingCharges){ %>
 
                         <span class="badge bg-warning text-dark">
 

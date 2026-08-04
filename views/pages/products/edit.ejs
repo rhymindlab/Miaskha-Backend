@@ -430,7 +430,7 @@ PART 2 STARTS HERE
 
                     <option
                         value="fixed"
-                        <%= product.makingCharges.type==="fixed" ? "selected":"" %>>
+                        <%= product.makingCharges?.type==="fixed" ? "selected":"" %>>
 
                         Fixed
 
@@ -438,7 +438,7 @@ PART 2 STARTS HERE
 
                     <option
                         value="perGram"
-                        <%= product.makingChargesType==="perGram" ? "selected":"" %>>
+                        <%= product.makingCharges?.type==="perGram" ? "selected":"" %>>
 
                         Per Gram
 
@@ -446,7 +446,7 @@ PART 2 STARTS HERE
 
                     <option
                         value="percentage"
-                        <%= product.makingCharges.type==="percentage" ? "selected":"" %>>
+                        <%= product.makingCharges?.type==="percentage" ? "selected":"" %>>
 
                         Percentage
 
@@ -469,7 +469,7 @@ PART 2 STARTS HERE
                     type="number"
                     step="0.01"
                     name="makingChargesValue"
-                    value="<%= product.makingCharges.value || 0 %>">
+                    value="<%= product.makingCharges?.value || 0 %>">
 
             </div>
 
@@ -487,7 +487,7 @@ PART 2 STARTS HERE
 
                     <option
                         value="fixed"
-                        <%= product.makingCharges.discount.type==="fixed" ? "selected":"" %>>
+                        <%= product.makingCharges?.discount?.type==="fixed" ? "selected":"" %>>
 
                         Fixed
 
@@ -495,7 +495,7 @@ PART 2 STARTS HERE
 
                     <option
                         value="percentage"
-                        <%= product.makingCharges.discount.type==="percentage" ? "selected":"" %>>
+                        <%= product.makingCharges?.discount?.type==="percentage" ? "selected":"" %>>
 
                         Percentage
 
@@ -520,7 +520,7 @@ PART 2 STARTS HERE
                     type="number"
                     step="0.01"
                     name="makingChargesDiscount"
-                    value="<%= product.makingCharges.discount.value || 0 %>">
+                    value="<%= product.makingCharges?.discount?.value || 0 %>">
 
             </div>
              <div class="col-lg-3">

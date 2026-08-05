@@ -281,7 +281,7 @@ PART 2 STARTS HERE
 
                 <p>
 
-                    <%= product.pricing.mode || "-" %>
+                    <%= product.pricing?.mode || "-" %>
 
                 </p>
 
@@ -377,7 +377,7 @@ PART 2 STARTS HERE
 
                 <p>
 
-                    <%= product.makingCharges.type || "-" %>
+                    <%= product.makingCharges?.type || "-" %>
 
                 </p>
 
@@ -393,7 +393,7 @@ PART 2 STARTS HERE
 
                 <p>
 
-                    <%= product.makingCharges.value || 0 %>
+                    <%= product.makingCharges?.value || 0 %>
 
                 </p>
 
@@ -409,7 +409,7 @@ PART 2 STARTS HERE
 
                 <p>
 
-                    <%= product.makingCharges.discount.type || 0 %>
+                    <%= product.makingCharges?.discount?.type || 0 %>
 
                 </p>
 
@@ -425,7 +425,7 @@ PART 2 STARTS HERE
 
                 <p>
 
-                    <%= product.makingCharges.discount.value || 0 %>
+                    <%= product.makingCharges?.discount?.value || 0 %>
 
                 </p>
 
@@ -457,7 +457,7 @@ PART 2 STARTS HERE
 
                 <p>
 
-                    <% if(product.pricing.dynamicMetal){ %>
+                    <% if(product.pricing?.dynamicMetal){ %>
 
                         <span class="badge bg-success">
 
@@ -467,7 +467,7 @@ PART 2 STARTS HERE
 
                     <% } %>
 
-                    <% if(product.pricing.dynamicStone){ %>
+                    <% if(product.pricing?.dynamicStone){ %>
 
                         <span class="badge bg-primary">
 
@@ -477,7 +477,7 @@ PART 2 STARTS HERE
 
                     <% } %>
 
-                    <% if(product.pricing.dynamicMakingCharges){ %>
+                    <% if(product.pricing?.dynamicMakingCharges){ %>
 
                         <span class="badge bg-warning text-dark">
 

@@ -111,7 +111,6 @@ function buildStoneArray(body) {
 ========================================================== */
 
 function buildCustomizationFields(customizationFields) {
-
     if (!customizationFields) return [];
 
     const fields = Array.isArray(customizationFields)
@@ -119,38 +118,27 @@ function buildCustomizationFields(customizationFields) {
         : Object.values(customizationFields);
 
     return fields
-
-        .filter(field => field.name?.trim())
-
+        .filter(field => String(field?.name ?? "").trim())
         .map(field => ({
-
-            name: field.name.trim(),
-
-            label: field.label?.trim() || "",
-
+            name: String(field.name ?? "").trim(),
+            label: String(field.label ?? "").trim(),
             type: field.type || "text",
-
-            placeholder: field.placeholder?.trim() || "",
-
+            placeholder: String(field.placeholder ?? "").trim(),
             required: field.required === "on" || field.required === true,
-
-            options: field.options
-                ? field.options
-                    .split(",")
-                    .map(option => option.trim())
-                    .filter(Boolean)
-                : [],
-
+            options:
+                typeof field.options === "string"
+                    ? field.options
+                          .split(",")
+                          .map(option => option.trim())
+                          .filter(Boolean)
+                    : Array.isArray(field.options)
+                    ? field.options
+                    : [],
             dependsOn: {
-
                 field: field.dependsOn?.field || "",
-
-                value: field.dependsOn?.value || ""
-
-            }
-
+                value: field.dependsOn?.value || "",
+            },
         }));
-
 }
 
 /* ==========================================================
@@ -878,7 +866,7 @@ async function handleGetProduct(req, res) {
 
 
         const product = await Product.findById(req.params.id)
-            .select("_id title productType metalType purity images pricing metalWeight stones makingCharges salePrice mrp productDiscount stoneDiscount customizationFields")
+            .select("_id title shortDescription description sku productType metalType purity images pricing metalWeight stones makingCharges salePrice mrp productDiscount stoneDiscount specifications customizationFields")
             .lean();
 
         return res.json(product);

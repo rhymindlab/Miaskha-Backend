@@ -12,7 +12,7 @@ function generateUsername(firstName, lastName) {
 
 async function handleUserSignUp(req, res) {
     try {
-        const { firstName, lastName, password, email} = req.body;
+        const { firstName, lastName, password, email, termsandConditions} = req.body;
 
         let userName;
 
@@ -27,6 +27,7 @@ async function handleUserSignUp(req, res) {
             password,
             email,
             role: "USER",
+            terms: termsandConditions || true,
         });
 
         // Login immediately after signup
@@ -61,12 +62,13 @@ async function handleUserSignUp(req, res) {
 
 async function handleAddAdmin(req, res){
     try {
-        const {userName, password, email, role} = req.body;
+        const {userName, password, email} = req.body;
         await Users.create({
             userName,
             password,
             email,
-            role,
+            role: "ADMIN",
+            terms: true,
         });
         return res.status(200).send('New Admin has Been Added');
     } catch (err) {
@@ -81,8 +83,9 @@ async function handleSignUp(req, res){
         await Users.create({
             userName,
             password,   
-            email,
+            email,  
             role,
+            terms: true,
         });
         return res.render("login")
     } catch (err) {

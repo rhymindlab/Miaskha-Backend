@@ -129,6 +129,11 @@ const usersSchema = new Schema(
             type: Boolean,
             default: true,
         },
+
+        terms: {
+            type: Boolean,
+            default: true,
+        }
     },
     {
         timestamps: true,

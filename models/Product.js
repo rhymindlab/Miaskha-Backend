@@ -200,6 +200,7 @@ const productSchema = new mongoose.Schema(
         "Mangalsutra",
         "Nose Pin",
         "Anklet",
+        "Gifting",
         "Other",
       ],
       required: true,
